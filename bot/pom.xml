@@ -43,12 +43,6 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
-        <!-- Telegram -->
-        <dependency>
-            <groupId>com.github.pengrad</groupId>
-            <artifactId>java-telegram-bot-api</artifactId>
-        </dependency>
-
         <!-- Dev Tools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -123,6 +117,13 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Telegram -->
+        <dependency>
+            <groupId>com.github.pengrad</groupId>
+            <artifactId>java-telegram-bot-api</artifactId>
+            <version>7.0.1</version>
         </dependency>
     </dependencies>
 
