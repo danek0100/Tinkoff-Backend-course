@@ -2,17 +2,19 @@ package edu.java.bot.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.BaseResponse;
+import edu.java.bot.command.Command;
 import edu.java.bot.configuration.ApplicationConfig;
 import edu.java.bot.service.UserMessageProcessor;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,10 +24,20 @@ public class TelegramBotImpl implements Bot {
     private final TelegramBot bot;
     private final UserMessageProcessor messageProcessor;
 
-    @Autowired
     public TelegramBotImpl(ApplicationConfig config, UserMessageProcessor messageProcessor) {
         this.bot = new TelegramBot(config.telegramToken());
         this.messageProcessor = messageProcessor;
+    }
+
+    @PostConstruct
+    public void setupBotCommands() {
+        List<Command> commands = messageProcessor.getCommands();
+
+        BotCommand[] botCommands = commands.stream()
+            .map(command -> new BotCommand(command.command(), command.description()))
+            .toArray(BotCommand[]::new);
+
+        bot.execute(new SetMyCommands(botCommands));
     }
 
     @PostConstruct

@@ -5,7 +5,9 @@ import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.repository.LinkStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TrackCommand implements Command {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrackCommand.class);

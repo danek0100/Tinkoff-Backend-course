@@ -6,7 +6,7 @@ import edu.java.bot.command.Command;
 import java.util.List;
 
 public interface UserMessageProcessor {
-    List<? extends Command> commands();
+    List<Command> getCommands();
 
     SendMessage process(Update update);
 }

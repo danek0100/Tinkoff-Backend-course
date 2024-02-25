@@ -4,7 +4,9 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class StartCommand implements Command {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StartCommand.class);

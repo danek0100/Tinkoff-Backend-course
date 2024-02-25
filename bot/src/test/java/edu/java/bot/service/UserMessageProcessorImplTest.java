@@ -10,8 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,12 +44,23 @@ class UserMessageProcessorImplTest {
 
     @Test
     void whenCommandIsKnown_thenProcessCommand() {
-        String commandText = "/start";
+        Update update = mock(Update.class);
+        Message message = mock(Message.class);
+        Chat chat = mock(Chat.class);
+        when(update.message()).thenReturn(message);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(123L);
+        when(message.text()).thenReturn("/start");
+
         Command startCommand = mock(Command.class);
-        when(startCommand.supports(update)).thenReturn(true);
-        when(startCommand.command()).thenReturn(commandText);
+        when(startCommand.supports(any())).thenReturn(true);
+        when(startCommand.command()).thenReturn("/start");
+
+        List<Command> commandList = new ArrayList<>();
         commandList.add(startCommand);
-        userMessageProcessor.process(update);
+        UserMessageProcessor messageProcessor = new UserMessageProcessorImpl(commandList);
+
+        messageProcessor.process(update);
         verify(startCommand, times(1)).handle(update);
     }
 
