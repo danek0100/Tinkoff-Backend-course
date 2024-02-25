@@ -1,9 +1,9 @@
 package edu.java.dto;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.util.List;
 
 @Setter
 @Getter

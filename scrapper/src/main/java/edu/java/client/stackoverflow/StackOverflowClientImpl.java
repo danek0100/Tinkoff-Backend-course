@@ -4,14 +4,18 @@ import edu.java.dto.AnswerResponse;
 import edu.java.dto.AnswersApiResponse;
 import edu.java.dto.QuestionResponse;
 import edu.java.dto.QuestionsApiResponse;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import java.util.List;
 
 @Service
 public class StackOverflowClientImpl implements StackOverflowClient {
+
+    private static final String SITE = "site";
+    private static final String STACKOVERFLOW = "stackoverflow";
+    private static final String API_ERROR = "API Error";
 
     private final WebClient webClient;
 
@@ -26,11 +30,11 @@ public class StackOverflowClientImpl implements StackOverflowClient {
         return webClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path("/questions/{ids}")
-                .queryParam("site", "stackoverflow")
+                .queryParam(SITE, STACKOVERFLOW)
                 .build(joinedQuestionIds))
             .retrieve()
             .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-                response -> Mono.error(new RuntimeException("API Error")))
+                response -> Mono.error(new RuntimeException(API_ERROR)))
             .bodyToMono(QuestionsApiResponse.class)
             .map(QuestionsApiResponse::getItems);
     }
@@ -44,11 +48,11 @@ public class StackOverflowClientImpl implements StackOverflowClient {
         return webClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path("/questions/{id}/answers")
-                .queryParam("site", "stackoverflow")
+                .queryParam(SITE, STACKOVERFLOW)
                 .build(joinedQuestionIds))
             .retrieve()
             .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-                response -> Mono.error(new RuntimeException("API Error")))
+                response -> Mono.error(new RuntimeException(API_ERROR)))
             .bodyToMono(AnswersApiResponse.class)
             .map(AnswersApiResponse::getItems);
     }

@@ -8,6 +8,8 @@ import reactor.core.publisher.Mono;
 
 public interface GitHubClient {
     Mono<PullRequestResponse> fetchPullRequestDetails(String owner, String repo, int pullRequestId);
+
     Flux<IssuesCommentsResponse> fetchIssueComments(String owner, String repo, int issueNumber);
+
     Flux<PullCommentsResponse> fetchPullComments(String owner, String repo, int pullNumber);
 }
