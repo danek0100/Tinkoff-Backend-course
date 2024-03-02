@@ -22,3 +22,8 @@ github:
 stackoverflow:
   base:
     url: ${STACKOVERFLOW_BASE_URL:https://api.stackexchange.com/2.2}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+
