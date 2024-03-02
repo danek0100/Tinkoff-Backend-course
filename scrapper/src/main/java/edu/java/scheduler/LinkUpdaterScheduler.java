@@ -18,8 +18,7 @@ public class LinkUpdaterScheduler {
         this.schedulerConfig = applicationConfig.scheduler();
     }
 
-    @Scheduled(fixedDelayString = "#{T(java.time.Duration).parse('${app.scheduler.interval}').toMillis()}",
-               initialDelayString = "#{T(java.time.Duration).parse('${app.scheduler.force-check-delay}').toMillis()}")
+    @Scheduled(fixedDelayString = "#{@scheduler.interval}")
     public void update() {
         if (schedulerConfig.enable()) {
             LOGGER.info("Updating...");

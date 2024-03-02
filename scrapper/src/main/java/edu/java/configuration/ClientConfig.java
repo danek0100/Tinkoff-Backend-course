@@ -13,13 +13,13 @@ public class ClientConfig {
 
     @Bean
     public WebClient gitHubWebClient(WebClient.Builder webClientBuilder,
-        @Value("${github.base.url:https://api.github.com}") String gitHubBaseUrl) {
+        @Value("${github.base.url}") String gitHubBaseUrl) {
         return webClientBuilder.baseUrl(gitHubBaseUrl).build();
     }
 
     @Bean
     public WebClient stackOverflowWebClient(WebClient.Builder webClientBuilder,
-        @Value("${stackoverflow.base.url:https://api.stackexchange.com/2.2}") String stackOverflowBaseUrl) {
+        @Value("${stackoverflow.base.url}") String stackOverflowBaseUrl) {
         return webClientBuilder.baseUrl(stackOverflowBaseUrl).build();
     }
 

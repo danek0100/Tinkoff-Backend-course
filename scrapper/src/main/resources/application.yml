@@ -17,8 +17,8 @@ logging:
 
 github:
   base:
-    url: https://api.github.com
+    url: ${GITHUB_BASE_URL:https://api.github.com}
 
 stackoverflow:
   base:
-    url: https://api.stackexchange.com/2.2
+    url: ${STACKOVERFLOW_BASE_URL:https://api.stackexchange.com/2.2}
