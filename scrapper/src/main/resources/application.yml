@@ -4,6 +4,9 @@ app:
     interval: PT10S
     force-check-delay: PT10S
 
+bot:
+  api:
+    baseurl: http://localhost:8090
 
 spring:
   application:
