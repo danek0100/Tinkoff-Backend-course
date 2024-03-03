@@ -11,7 +11,8 @@ import org.springframework.web.context.request.WebRequest;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = { IllegalArgumentException.class })
-    protected ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+    protected ResponseEntity<ApiErrorResponse>
+    handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         ApiErrorResponse response = new ApiErrorResponse();
         response.setDescription("Неверный запрос");
         response.setCode(HttpStatus.BAD_REQUEST.toString());
@@ -32,19 +33,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ChatAlreadyRegisteredException.class)
     public ResponseEntity<ApiErrorResponse> handleChatAlreadyRegisteredException(ChatAlreadyRegisteredException ex) {
-        ApiErrorResponse response = new ApiErrorResponse("Повторная регистрация чата", HttpStatus.BAD_REQUEST.toString(), ex.getClass().getSimpleName(), ex.getMessage(), null);
+        ApiErrorResponse response = new ApiErrorResponse("Повторная регистрация чата",
+            HttpStatus.BAD_REQUEST.toString(), ex.getClass().getSimpleName(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(LinkAlreadyAddedException.class)
     public ResponseEntity<ApiErrorResponse> handleLinkAlreadyAddedException(LinkAlreadyAddedException ex) {
-        ApiErrorResponse response = new ApiErrorResponse("Ссылка уже добавлена", HttpStatus.BAD_REQUEST.toString(), ex.getClass().getSimpleName(), ex.getMessage(), null);
+        ApiErrorResponse response = new ApiErrorResponse("Ссылка уже добавлена",
+            HttpStatus.BAD_REQUEST.toString(), ex.getClass().getSimpleName(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ChatNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleChatNotFoundException(ChatNotFoundException ex) {
-        ApiErrorResponse response = new ApiErrorResponse("Чат не найден", HttpStatus.NOT_FOUND.toString(), ex.getClass().getSimpleName(), ex.getMessage(), null);
+        ApiErrorResponse response = new ApiErrorResponse("Чат не найден", HttpStatus.NOT_FOUND.toString(),
+            ex.getClass().getSimpleName(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }

@@ -11,9 +11,10 @@ import org.springframework.web.context.request.WebRequest;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = { IllegalArgumentException.class })
-    protected ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+    protected ResponseEntity<ApiErrorResponse>
+    handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         ApiErrorResponse response = new ApiErrorResponse();
-        response.setDescription("Неверный запрос");
+        response.setDescription("Bad request");
         response.setCode(HttpStatus.BAD_REQUEST.toString());
         response.setExceptionName(ex.getClass().getSimpleName());
         response.setExceptionMessage(ex.getMessage());

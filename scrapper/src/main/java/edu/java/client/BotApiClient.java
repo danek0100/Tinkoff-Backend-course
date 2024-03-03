@@ -8,7 +8,8 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class BotApiClient {
-    private final WebClient webClient;
+    private WebClient webClient;
+
     public BotApiClient(@Value("${bot.api.baseurl}") String baseUrl) {
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
@@ -21,5 +22,9 @@ public class BotApiClient {
                 .bodyValue(linkUpdate)
                 .retrieve()
                 .bodyToMono(String.class);
+    }
+
+    void setWebClient(WebClient webClient) {
+        this.webClient = webClient;
     }
 }
