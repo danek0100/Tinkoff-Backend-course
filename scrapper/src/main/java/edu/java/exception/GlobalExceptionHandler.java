@@ -13,41 +13,43 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = { IllegalArgumentException.class })
     protected ResponseEntity<ApiErrorResponse>
     handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        ApiErrorResponse response = new ApiErrorResponse();
-        response.setDescription("Неверный запрос");
-        response.setCode(HttpStatus.BAD_REQUEST.toString());
-        response.setExceptionName(ex.getClass().getSimpleName());
-        response.setExceptionMessage(ex.getMessage());
+        ApiErrorResponse response = ApiErrorResponse.builder()
+            .description("Bad request")
+            .code(HttpStatus.BAD_REQUEST.toString())
+            .exceptionName(ex.getClass().getSimpleName())
+            .exceptionMessage(ex.getMessage())
+            .build();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = { Exception.class })
     protected ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, WebRequest request) {
-        ApiErrorResponse response = new ApiErrorResponse();
-        response.setDescription("Внутренняя ошибка сервера");
-        response.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-        response.setExceptionName(ex.getClass().getSimpleName());
-        response.setExceptionMessage(ex.getMessage());
+        ApiErrorResponse response = ApiErrorResponse.builder()
+            .description("Internal server error")
+            .code(HttpStatus.INTERNAL_SERVER_ERROR.toString())
+            .exceptionName(ex.getClass().getSimpleName())
+            .exceptionMessage(ex.getMessage())
+            .build();
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ChatAlreadyRegisteredException.class)
     public ResponseEntity<ApiErrorResponse> handleChatAlreadyRegisteredException(ChatAlreadyRegisteredException ex) {
-        ApiErrorResponse response = new ApiErrorResponse("Повторная регистрация чата",
+        ApiErrorResponse response = new ApiErrorResponse("Chat already registered",
             HttpStatus.BAD_REQUEST.toString(), ex.getClass().getSimpleName(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(LinkAlreadyAddedException.class)
     public ResponseEntity<ApiErrorResponse> handleLinkAlreadyAddedException(LinkAlreadyAddedException ex) {
-        ApiErrorResponse response = new ApiErrorResponse("Ссылка уже добавлена",
+        ApiErrorResponse response = new ApiErrorResponse("Link already added",
             HttpStatus.BAD_REQUEST.toString(), ex.getClass().getSimpleName(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ChatNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleChatNotFoundException(ChatNotFoundException ex) {
-        ApiErrorResponse response = new ApiErrorResponse("Чат не найден", HttpStatus.NOT_FOUND.toString(),
+        ApiErrorResponse response = new ApiErrorResponse("Chat not found", HttpStatus.NOT_FOUND.toString(),
             ex.getClass().getSimpleName(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }

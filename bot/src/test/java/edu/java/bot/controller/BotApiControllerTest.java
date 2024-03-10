@@ -31,7 +31,6 @@ public class BotApiControllerTest {
         mockMvc.perform(post("/updates")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Обновление обработано"));
+                .andExpect(status().isNoContent());
     }
 }

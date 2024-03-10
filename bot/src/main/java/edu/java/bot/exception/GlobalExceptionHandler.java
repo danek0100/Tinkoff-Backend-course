@@ -13,21 +13,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = { IllegalArgumentException.class })
     protected ResponseEntity<ApiErrorResponse>
     handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        ApiErrorResponse response = new ApiErrorResponse();
-        response.setDescription("Bad request");
-        response.setCode(HttpStatus.BAD_REQUEST.toString());
-        response.setExceptionName(ex.getClass().getSimpleName());
-        response.setExceptionMessage(ex.getMessage());
+        ApiErrorResponse response = ApiErrorResponse.builder()
+            .description("Bad request")
+            .code(HttpStatus.BAD_REQUEST.toString())
+            .exceptionName(ex.getClass().getSimpleName())
+            .exceptionMessage(ex.getMessage())
+            .build();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = { Exception.class })
     protected ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, WebRequest request) {
-        ApiErrorResponse response = new ApiErrorResponse();
-        response.setDescription("Внутренняя ошибка сервера");
-        response.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-        response.setExceptionName(ex.getClass().getSimpleName());
-        response.setExceptionMessage(ex.getMessage());
+        ApiErrorResponse response = ApiErrorResponse.builder()
+            .description("Internal server error")
+            .code(HttpStatus.INTERNAL_SERVER_ERROR.toString())
+            .exceptionName(ex.getClass().getSimpleName())
+            .exceptionMessage(ex.getMessage())
+            .build();
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

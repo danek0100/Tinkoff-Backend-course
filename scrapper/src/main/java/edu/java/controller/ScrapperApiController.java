@@ -1,7 +1,11 @@
 package edu.java.controller;
 
 import edu.java.dto.AddLinkRequest;
+import edu.java.dto.LinkResponse;
+import edu.java.dto.ListLinksResponse;
 import edu.java.dto.RemoveLinkRequest;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,29 +20,43 @@ public class ScrapperApiController {
 
     @PostMapping("/tg-chat/{id}")
     public ResponseEntity<?> registerChat(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().body("Чат зарегистрирован");
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/tg-chat/{id}")
     public ResponseEntity<?> deleteChat(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().body("Чат успешно удалён");
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/links")
-    public ResponseEntity<?> getAllLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
-        return ResponseEntity.ok().body("Ссылки успешно получены");
+    public ResponseEntity<ListLinksResponse> getAllLinks(@RequestHeader("Tg-Chat-Id") Long tgChatId) {
+        List<LinkResponse> links = new ArrayList<>(); // links from db
+
+        ListLinksResponse response = new ListLinksResponse();
+        response.setLinks(links);
+        response.setSize(links.size());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/links")
-    public ResponseEntity<?> addLink(@RequestHeader("Tg-Chat-Id") Long tgChatId,
+    public ResponseEntity<LinkResponse> addLink(@RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody AddLinkRequest addLinkRequest) {
-        return ResponseEntity.ok().body("Ссылка успешно добавлена");
+
+        // interacting with db
+
+        LinkResponse response = new LinkResponse(tgChatId, addLinkRequest.getLink()); // Tempo for tests
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/links")
-    public ResponseEntity<?> removeLink(@RequestHeader("Tg-Chat-Id") Long tgChatId,
+    public ResponseEntity<LinkResponse> removeLink(@RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody RemoveLinkRequest removeLinkRequest) {
-        return ResponseEntity.ok().body("Ссылка успешно убрана");
+
+        // interacting with db
+
+        LinkResponse response = new LinkResponse(tgChatId, removeLinkRequest.getLink());
+        return ResponseEntity.ok(response);
     }
 }
 

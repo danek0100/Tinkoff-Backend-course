@@ -22,8 +22,8 @@ public class ScrapperApiClient {
     public ScrapperApiClient(@Value("${scrapper.api.baseurl}") String baseUrl,
         HttpClient httpClient, ObjectMapper objectMapper) {
         this.baseUrl = baseUrl;
-        this.httpClient = httpClient != null ? httpClient : HttpClient.newHttpClient();
-        this.objectMapper = objectMapper != null ? objectMapper : new ObjectMapper();
+        this.httpClient = httpClient;
+        this.objectMapper = objectMapper;
     }
 
     private String sendRequest(HttpRequest request) throws Exception {

@@ -14,7 +14,9 @@ public class BotApiController {
         if (linkUpdate.getUrl() == null || linkUpdate.getUrl().isBlank()) {
             throw new IllegalArgumentException("URL cannot be empty");
         }
-        // Здесь может быть логика обработки обновления
-        return ResponseEntity.ok().body("Обновление обработано");
+
+        // Логика уведомлений
+
+        return ResponseEntity.noContent().build();
     }
 }

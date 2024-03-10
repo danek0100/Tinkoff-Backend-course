@@ -27,47 +27,54 @@ public class ScrapperApiControllerTest {
     @Test
     public void registerChat_ShouldReturnSuccessMessage() throws Exception {
         mockMvc.perform(post("/tg-chat/{id}", 1L))
-            .andExpect(status().isOk())
-            .andExpect(content().string("Чат зарегистрирован"));
+            .andExpect(status().isNoContent());
     }
 
     @Test
     public void deleteChat_ShouldReturnSuccessMessage() throws Exception {
         mockMvc.perform(delete("/tg-chat/{id}", 1L))
-            .andExpect(status().isOk())
-            .andExpect(content().string("Чат успешно удалён"));
+            .andExpect(status().isNoContent());
     }
 
     @Test
-    public void getAllLinks_ShouldReturnSuccessMessage() throws Exception {
+    public void getAllLinks_ShouldReturnListLinksResponse() throws Exception {
         mockMvc.perform(get("/links")
                 .header("Tg-Chat-Id", 1L))
             .andExpect(status().isOk())
-            .andExpect(content().string("Ссылки успешно получены"));
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.links").isEmpty())
+            .andExpect(jsonPath("$.size").value(0));
     }
 
+
     @Test
-    public void addLink_ShouldReturnSuccessMessage() throws Exception {
-        AddLinkRequest addLinkRequest = new AddLinkRequest("link");
+    public void addLink_ShouldReturnLinkResponse() throws Exception {
+        AddLinkRequest addLinkRequest = new AddLinkRequest();
+        addLinkRequest.setLink("http://example.com");
 
         mockMvc.perform(post("/links")
                 .header("Tg-Chat-Id", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(addLinkRequest)))
             .andExpect(status().isOk())
-            .andExpect(content().string("Ссылка успешно добавлена"));
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(1L))
+            .andExpect(jsonPath("$.url").value("http://example.com"));
     }
 
+
     @Test
-    public void removeLink_ShouldReturnSuccessMessage() throws Exception {
-        RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("link");
+    public void removeLink_ShouldReturnLinkResponse() throws Exception {
+        RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest();
+        removeLinkRequest.setLink("http://example.com");
 
         mockMvc.perform(delete("/links")
                 .header("Tg-Chat-Id", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(removeLinkRequest)))
             .andExpect(status().isOk())
-            .andExpect(content().string("Ссылка успешно убрана"));
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(1L))
+            .andExpect(jsonPath("$.url").value("http://example.com"));
     }
-
 }
