@@ -4,6 +4,7 @@ import edu.java.dao.ChatDao;
 import edu.java.dto.ChatDTO;
 import edu.java.exception.ChatAlreadyRegisteredException;
 import edu.java.exception.ChatNotFoundException;
+import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class JdbcChatServiceTest {
+public class JdbcChatServiceTest extends IntegrationTest {
 
     @Autowired
     private JdbcChatService chatService;
