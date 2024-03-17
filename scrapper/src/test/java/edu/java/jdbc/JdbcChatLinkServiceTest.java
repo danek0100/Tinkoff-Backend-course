@@ -7,6 +7,7 @@ import edu.java.dto.ChatDTO;
 import edu.java.dto.ChatLinkDTO;
 import edu.java.dto.LinkDTO;
 import edu.java.exception.ChatNotFoundException;
+import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class JdbcChatLinkServiceTest {
+public class JdbcChatLinkServiceTest extends IntegrationTest {
 
     @Autowired
     private JdbcChatLinkService chatLinkService;

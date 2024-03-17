@@ -3,6 +3,7 @@ package edu.java.jdbc;
 import edu.java.dto.LinkDTO;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
+import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class JdbcLinkServiceTest {
+public class JdbcLinkServiceTest extends IntegrationTest {
 
     @Autowired
     private JdbcLinkService linkService;
