@@ -50,7 +50,7 @@ public class JdbcChatServiceTest {
 
         Exception exception = assertThrows(ChatAlreadyRegisteredException.class, () ->
             chatService.register(testChatId));
-        assertTrue(exception.getMessage().contains("Chat with Id " + testChatId + " already exists."));
+        assertTrue(exception.getMessage().contains("Chat with id " + testChatId + " already exists."));
     }
 
     @Test

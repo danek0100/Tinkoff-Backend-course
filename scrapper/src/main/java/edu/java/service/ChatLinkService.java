@@ -11,5 +11,7 @@ public interface ChatLinkService {
 
     Collection<ChatLinkDTO> findAllLinksForChat(long chatId);
 
+    Collection<ChatLinkDTO> findAllChatsForLink(long linkId);
+
     boolean existsChatsForLink(long linkId);
 }

@@ -2,6 +2,7 @@ package edu.java.service;
 
 import edu.java.client.stackoverflow.StackOverflowClient;
 import edu.java.dto.AnswerResponse;
+import edu.java.dto.CombinedStackOverflowInfo;
 import edu.java.dto.QuestionResponse;
 import java.util.Collections;
 import java.util.List;
@@ -39,5 +40,10 @@ public class StackOverflowService {
         return stackOverflowClient.fetchAnswersInfo(questionIds);
     }
 
+    public Mono<CombinedStackOverflowInfo> getCombinedInfo(String questionId) {
+        Mono<QuestionResponse> questionMono = getQuestionInfo(questionId);
+        Mono<List<AnswerResponse>> answersMono = getAnswersForQuestion(questionId);
 
+        return Mono.zip(questionMono, answersMono, CombinedStackOverflowInfo::new);
+    }
 }

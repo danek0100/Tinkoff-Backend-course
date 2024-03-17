@@ -39,6 +39,11 @@ public class JdbcChatLinkService implements ChatLinkService {
     }
 
     @Override
+    public Collection<ChatLinkDTO> findAllChatsForLink(long linkId) {
+        return chatLinkDao.getChatsForLink(linkId);
+    }
+
+    @Override
     public boolean existsChatsForLink(long linkId) {
         return !chatLinkDao.getChatsForLink(linkId).isEmpty();
     }

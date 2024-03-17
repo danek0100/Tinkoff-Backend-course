@@ -22,6 +22,9 @@ public class AnswerResponse {
     @JsonProperty("creation_date")
     private OffsetDateTime creationDate;
 
+    @JsonProperty("last_activity_date")
+    private OffsetDateTime lastActivityDate;
+
     @JsonProperty("question_id")
     private Long questionId;
 }

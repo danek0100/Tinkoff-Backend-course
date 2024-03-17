@@ -100,6 +100,15 @@ public class JdbcChatLinkServiceTest {
     @Test
     @Transactional
     @Rollback
+    void findAllChatsForLink_ReturnsCorrectLinks() {
+        Collection<ChatLinkDTO> links = chatLinkService.findAllChatsForLink(testLinkId);
+        assertNotNull(links);
+        assertFalse(links.isEmpty());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
     void existsChatsForLink_ReturnsTrue_WhenChatsExist() {
         boolean exists = chatLinkService.existsChatsForLink(testLinkId);
         assertTrue(exists);
