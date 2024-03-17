@@ -25,5 +25,13 @@ public class PullCommentsResponse implements Comment {
     @JsonProperty("created_at")
     private OffsetDateTime createdAt;
 
+    @JsonProperty("updated_at")
+    private OffsetDateTime updatedAt;
+
     private String body;
+
+    @Override
+    public String getCommentDescription() {
+        return diffHunk + "\n\n" + body;
+    }
 }
