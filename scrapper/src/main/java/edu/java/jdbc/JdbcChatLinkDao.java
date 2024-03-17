@@ -1,5 +1,6 @@
-package edu.java.dao;
+package edu.java.jdbc;
 
+import edu.java.dao.ChatLinkDao;
 import edu.java.dto.ChatLinkDTO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 
 @Repository
+@SuppressWarnings("MultipleStringLiterals")
 public class JdbcChatLinkDao implements ChatLinkDao {
 
     private final JdbcTemplate jdbcTemplate;
@@ -43,6 +45,19 @@ public class JdbcChatLinkDao implements ChatLinkDao {
     public List<ChatLinkDTO> findAll() {
         return jdbcTemplate.query(
             "SELECT * FROM chat_link",
+            (rs, rowNum) -> new ChatLinkDTO(
+                rs.getLong("chat_id"),
+                rs.getLong("link_id"),
+                rs.getTimestamp("shared_at").toLocalDateTime()
+            )
+        );
+    }
+
+    @Override
+    public List<ChatLinkDTO> getChatsForLink(Long linkId) {
+        return jdbcTemplate.query(
+            "SELECT * FROM chat_link WHERE link_id = ?",
+            new Object[]{linkId},
             (rs, rowNum) -> new ChatLinkDTO(
                 rs.getLong("chat_id"),
                 rs.getLong("link_id"),

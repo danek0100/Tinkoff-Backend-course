@@ -1,5 +1,6 @@
-package edu.java.dao;
+package edu.java.jdbc;
 
+import edu.java.dao.ChatDao;
 import edu.java.dto.ChatDTO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,8 @@ public class JdbcChatDao implements ChatDao {
     @Override
     public void add(ChatDTO chat) {
         transactionTemplate.execute(status -> {
-            jdbcTemplate.update("INSERT INTO chat (chat_id, created_at, created_by) VALUES (?, ?, ?)",
-                    chat.getChatId(), chat.getCreatedAt(), chat.getCreatedBy());
+            jdbcTemplate.update("INSERT INTO chat (chat_id, created_at) VALUES (?, ?)",
+                    chat.getChatId(), chat.getCreatedAt());
             return null;
         });
     }
@@ -41,8 +42,17 @@ public class JdbcChatDao implements ChatDao {
     public List<ChatDTO> findAll() {
         return jdbcTemplate.query("SELECT * FROM chat", (rs, rowNum) -> new ChatDTO(
             rs.getLong("chat_id"),
-            rs.getTimestamp("created_at").toLocalDateTime(),
-            rs.getString("created_by")
+            rs.getTimestamp("created_at").toLocalDateTime()
         ));
+    }
+
+    @Override
+    public boolean existsById(Long chatId) {
+        Integer count = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM chat WHERE chat_id = ?",
+            new Object[]{chatId},
+            Integer.class
+        );
+        return count != null && count > 0;
     }
 }

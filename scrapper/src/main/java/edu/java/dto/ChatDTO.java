@@ -10,5 +10,4 @@ import lombok.Data;
 public class ChatDTO {
     private Long chatId;
     private LocalDateTime createdAt;
-    private String createdBy;
 }

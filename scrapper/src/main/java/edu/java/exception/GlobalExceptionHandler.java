@@ -53,4 +53,11 @@ public class GlobalExceptionHandler {
             ex.getClass().getSimpleName(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(LinkNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleChatNotFoundException(LinkNotFoundException ex) {
+        ApiErrorResponse response = new ApiErrorResponse("Link not found", HttpStatus.NOT_FOUND.toString(),
+            ex.getClass().getSimpleName(), ex.getMessage(), null);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
 }

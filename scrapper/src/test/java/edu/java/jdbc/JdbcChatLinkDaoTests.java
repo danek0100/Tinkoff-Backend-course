@@ -1,6 +1,7 @@
-package edu.java.dao;
+package edu.java.jdbc;
 
 import edu.java.dto.ChatLinkDTO;
+import edu.java.jdbc.JdbcChatLinkDao;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,11 +38,11 @@ public class JdbcChatLinkDaoTests extends IntegrationTest {
 
     @BeforeEach
     void setup() {
-        jdbcTemplate.update("INSERT INTO chat (chat_id, created_at, created_by) VALUES (?, ?, ?)",
-            testChatId, LocalDateTime.now(), "test_creator");
+        jdbcTemplate.update("INSERT INTO chat (chat_id, created_at) VALUES (?, ?)",
+            testChatId, LocalDateTime.now());
 
         testLinkId = addLinkAndReturnId("http://example.com", "Test description",
-            LocalDateTime.now(), "test_creator");
+            LocalDateTime.now());
     }
 
     @AfterEach
@@ -101,18 +102,27 @@ public class JdbcChatLinkDaoTests extends IntegrationTest {
         assertThat(results.size()).isGreaterThan(0);
     }
 
-    public Long addLinkAndReturnId(String url, String description, LocalDateTime createdAt, String createdBy) {
+    @Test
+    @Transactional
+    public void getChatsForLink() {
+        chatLinkDao.add(new ChatLinkDTO(testChatId, testLinkId, sharedAt));
+
+        List<ChatLinkDTO> results = chatLinkDao.getChatsForLink(testLinkId);
+
+        assertThat(results.size()).isGreaterThan(0);
+    }
+
+    public Long addLinkAndReturnId(String url, String description, LocalDateTime createdAt) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
             connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO link (url, description, created_at, created_by) VALUES (?, ?, ?, ?)",
+                    "INSERT INTO link (url, description, created_at) VALUES (?, ?, ?)",
                     new String[] {"link_id"} // Указываем, что ожидаем возврата link_id
                 );
                 ps.setString(1, url);
                 ps.setString(2, description);
                 ps.setTimestamp(3, java.sql.Timestamp.valueOf(createdAt));
-                ps.setString(4, createdBy);
                 return ps;
             },
             keyHolder);

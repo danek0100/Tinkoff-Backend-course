@@ -1,6 +1,7 @@
-package edu.java.dao;
+package edu.java.jdbc;
 
 import edu.java.dto.ChatDTO;
+import edu.java.jdbc.JdbcChatDao;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ public class JdbcChatDaoTests extends IntegrationTest {
     @Test
     @Transactional
     public void addTest() {
-        ChatDTO newChat = new ChatDTO(newChatId, createdAt, createdBy);
+        ChatDTO newChat = new ChatDTO(newChatId, createdAt);
         chatDao.add(newChat);
 
         ChatDTO insertedChat = jdbcTemplate.queryForObject(
@@ -44,21 +45,19 @@ public class JdbcChatDaoTests extends IntegrationTest {
                 new Object[]{newChatId},
                 (rs, rowNum) -> new ChatDTO(
                         rs.getLong("chat_id"),
-                        rs.getTimestamp("created_at").toLocalDateTime(),
-                        rs.getString("created_by")
+                        rs.getTimestamp("created_at").toLocalDateTime()
                 )
         );
 
         assertNotNull(insertedChat);
         assertEquals(newChatId, insertedChat.getChatId());
-        assertEquals(createdBy, insertedChat.getCreatedBy());
         assertTrue(Math.abs(createdAt.until(insertedChat.getCreatedAt(), ChronoUnit.SECONDS)) < 5);
     }
 
     @Test
     @Transactional
     public void removeTest() {
-        ChatDTO newChat = new ChatDTO(newChatId, createdAt, createdBy);
+        ChatDTO newChat = new ChatDTO(newChatId, createdAt);
         chatDao.add(newChat);
 
         chatDao.remove(newChatId);
@@ -74,8 +73,8 @@ public class JdbcChatDaoTests extends IntegrationTest {
     @Test
     @Transactional
     public void findAllTest() {
-        ChatDTO chat1 = new ChatDTO(newChatId, createdAt, createdBy);
-        ChatDTO chat2 = new ChatDTO(newChatId + 1, createdAt.plusDays(1), createdBy + "2");
+        ChatDTO chat1 = new ChatDTO(newChatId, createdAt);
+        ChatDTO chat2 = new ChatDTO(newChatId + 1, createdAt.plusDays(1));
         chatDao.add(chat1);
         chatDao.add(chat2);
 
@@ -85,4 +84,23 @@ public class JdbcChatDaoTests extends IntegrationTest {
         assertTrue(allChats.stream().anyMatch(chat -> chat.getChatId().equals(newChatId)));
         assertTrue(allChats.stream().anyMatch(chat -> chat.getChatId().equals(newChatId + 1)));
     }
+
+    @Test
+    @Transactional
+    public void existsByIdTest() {
+        boolean existsBeforeAdding = chatDao.existsById(newChatId);
+        assertFalse(existsBeforeAdding, "Chat should not exist before adding");
+
+        ChatDTO newChat = new ChatDTO(newChatId, createdAt);
+        chatDao.add(newChat);
+
+        boolean existsAfterAdding = chatDao.existsById(newChatId);
+        assertTrue(existsAfterAdding, "Chat should exist after adding");
+
+        chatDao.remove(newChatId);
+
+        boolean existsAfterRemoving = chatDao.existsById(newChatId);
+        assertFalse(existsAfterRemoving, "Chat should not exist after removing");
+    }
+
 }

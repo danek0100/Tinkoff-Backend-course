@@ -10,4 +10,6 @@ public interface ChatDao {
     void remove(Long chatId);
 
     List<ChatDTO> findAll();
+
+    boolean existsById(Long chatId);
 }
