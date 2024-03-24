@@ -1,6 +1,10 @@
 app:
   telegram-token: "${TELEGRAM_TOKEN:unset}"
 
+scrapper:
+  api:
+    baseurl: http://localhost:8080
+
 spring:
   application:
     name: bot
@@ -12,3 +16,7 @@ server:
 
 logging:
   config: classpath:log4j2-plain.xml
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
