@@ -6,6 +6,7 @@ import edu.java.dto.AddLinkRequest;
 import edu.java.dto.ChatLinkDTO;
 import edu.java.dto.LinkDTO;
 import edu.java.dto.RemoveLinkRequest;
+import edu.java.scrapper.IntegrationTest;
 import edu.java.service.ChatLinkService;
 import edu.java.service.ChatService;
 import edu.java.service.LinkService;
@@ -18,10 +19,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -33,9 +35,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(ScrapperApiController.class)
-public class ScrapperApiControllerTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestPropertySource(properties = {"app.database-access-type=jpa"})
+public class ScrapperApiControllerTest extends IntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
