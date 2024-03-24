@@ -1,7 +1,6 @@
 package edu.java.jdbc;
 
 import edu.java.dto.ChatLinkDTO;
-import edu.java.jdbc.JdbcChatLinkDao;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@TestPropertySource(properties = {"app.database-access-type=jdbc"})
 public class JdbcChatLinkDaoTests extends IntegrationTest {
 
     @Autowired
