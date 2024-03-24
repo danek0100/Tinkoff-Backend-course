@@ -1,0 +1,11 @@
+package edu.java.bot.exception;
+
+public class ChatAlreadyRegisteredException extends RuntimeException {
+    public ChatAlreadyRegisteredException(String message) {
+        super(message);
+    }
+
+    public static String getExceptionName() {
+        return "ChatAlreadyRegisteredException";
+    }
+}

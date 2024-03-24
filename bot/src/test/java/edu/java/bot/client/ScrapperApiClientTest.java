@@ -1,8 +1,8 @@
 package edu.java.bot.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import edu.java.bot.backoff.BackOffStrategy;
 import edu.java.bot.backoff.ConstBackOff;
@@ -12,6 +12,11 @@ import edu.java.bot.dto.AddLinkRequest;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Collections;
+import java.util.List;
+import edu.java.bot.dto.AddLinkRequest;
+import edu.java.bot.dto.LinkResponse;
+import edu.java.bot.dto.ListLinksResponse;
 import java.util.Collections;
 import edu.java.bot.dto.RemoveLinkRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,33 +76,55 @@ class ScrapperApiClientTest {
     @Test
     void testRegisterChat() throws Exception {
         Long chatId = 1L;
-        String result = scrapperApiClient.registerChat(chatId);
-        assertEquals("Expected response", result);
+        when(mockHttpResponse.statusCode()).thenReturn(204);
+
+        scrapperApiClient.registerChat(chatId);
+
         verify(mockHttpClient).send(any(HttpRequest.class), any());
     }
 
     @Test
     void testDeleteChat() throws Exception {
         Long chatId = 1L;
-        String result = scrapperApiClient.deleteChat(chatId);
-        assertEquals("Expected response", result);
+        when(mockHttpResponse.statusCode()).thenReturn(204);
+
+        scrapperApiClient.deleteChat(chatId);
+
         verify(mockHttpClient).send(any(HttpRequest.class), any());
     }
 
     @Test
     void testAddLink() throws Exception {
-        AddLinkRequest addLinkRequest = new AddLinkRequest("http://example.com");
         Long tgChatId = 1L;
-        String result = scrapperApiClient.addLink(tgChatId, addLinkRequest);
-        assertEquals("Expected response", result);
+        AddLinkRequest addLinkRequest = new AddLinkRequest("http://example.com", "Description");
+        LinkResponse expectedResponse = new LinkResponse(1L, "http://example.com", "Description");
+        String jsonResponse = objectMapper.writeValueAsString(expectedResponse);
+
+        when(mockHttpResponse.statusCode()).thenReturn(200);
+        when(mockHttpResponse.body()).thenReturn(jsonResponse);
+
+        LinkResponse result = scrapperApiClient.addLink(tgChatId, addLinkRequest);
+
+        assertEquals(expectedResponse.getUrl(), result.getUrl());
+        assertEquals(expectedResponse.getDescription(), result.getDescription());
         verify(mockHttpClient).send(any(HttpRequest.class), any());
     }
 
     @Test
     void testGetAllLinks() throws Exception {
         Long tgChatId = 1L;
-        String result = scrapperApiClient.getAllLinks(tgChatId);
-        assertEquals("Expected response", result);
+        List<LinkResponse> links = Collections.singletonList(new LinkResponse(1L, "http://example.com", "Description"));
+        ListLinksResponse expectedResponse = new ListLinksResponse(links, links.size());
+        String jsonResponse = objectMapper.writeValueAsString(expectedResponse);
+
+        when(mockHttpResponse.statusCode()).thenReturn(200);
+        when(mockHttpResponse.body()).thenReturn(jsonResponse);
+
+        ListLinksResponse result = scrapperApiClient.getAllLinks(tgChatId);
+
+        assertEquals(expectedResponse.getSize(), result.getSize());
+        assertEquals(expectedResponse.getLinks().size(), result.getLinks().size());
+        assertEquals(expectedResponse.getLinks().get(0).getUrl(), result.getLinks().get(0).getUrl());
         verify(mockHttpClient).send(any(HttpRequest.class), any());
     }
 
@@ -105,10 +132,19 @@ class ScrapperApiClientTest {
     void testRemoveLink() throws Exception {
         Long tgChatId = 1L;
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("http://example.com");
-        String result = scrapperApiClient.removeLink(tgChatId, removeLinkRequest);
-        assertEquals("Expected response", result);
+        LinkResponse expectedLinkResponse = new LinkResponse(1L, "http://example.com", "Example description");
+        String jsonResponse = objectMapper.writeValueAsString(expectedLinkResponse);
+
+        when(mockHttpResponse.statusCode()).thenReturn(200);
+        when(mockHttpResponse.body()).thenReturn(jsonResponse);
+
+        LinkResponse actualLinkResponse = scrapperApiClient.removeLink(tgChatId, removeLinkRequest);
+
+        assertEquals(expectedLinkResponse.getId(), actualLinkResponse.getId());
+        assertEquals(expectedLinkResponse.getUrl(), actualLinkResponse.getUrl());
+        assertEquals(expectedLinkResponse.getDescription(), actualLinkResponse.getDescription());
+
         verify(mockHttpClient).send(any(HttpRequest.class), any());
     }
-
 
 }
