@@ -12,4 +12,5 @@ import lombok.Setter;
 public class LinkResponse {
     private Long id;
     private String url;
+    private String description;
 }

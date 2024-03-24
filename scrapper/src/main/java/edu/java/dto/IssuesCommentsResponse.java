@@ -15,7 +15,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IssuesCommentsResponse {
+public class IssuesCommentsResponse implements Comment {
     private String url;
     private Long id;
 

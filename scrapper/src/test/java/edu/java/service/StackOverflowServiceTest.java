@@ -2,6 +2,7 @@ package edu.java.service;
 
 import edu.java.client.stackoverflow.StackOverflowClient;
 import edu.java.dto.AnswerResponse;
+import edu.java.dto.CombinedStackOverflowInfo;
 import edu.java.dto.QuestionResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,13 +32,18 @@ public class StackOverflowServiceTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        QuestionResponse mockQuestionResponse = new QuestionResponse(1L, "Test Question");
-        AnswerResponse mockAnswerResponse = new AnswerResponse(1L, OffsetDateTime.now(), 1L);
+        QuestionResponse mockQuestionResponse = new QuestionResponse(1L, "Test Question",
+            OffsetDateTime.now(), OffsetDateTime.now());
+        AnswerResponse mockAnswerResponse1 = new AnswerResponse(2L, OffsetDateTime.now().minusDays(1),
+            OffsetDateTime.now().minusDays(1),  1L);
+        AnswerResponse mockAnswerResponse2 = new AnswerResponse(3L, OffsetDateTime.now(),
+            OffsetDateTime.now(), 1L);
+        List<AnswerResponse> mockAnswers = List.of(mockAnswerResponse1, mockAnswerResponse2);
 
         when(stackOverflowClient.fetchQuestionsInfo(anyList()))
             .thenReturn(Mono.just(Collections.singletonList(mockQuestionResponse)));
         when(stackOverflowClient.fetchAnswersInfo(anyList()))
-            .thenReturn(Mono.just(Collections.singletonList(mockAnswerResponse)));
+            .thenReturn(Mono.just(mockAnswers));
     }
 
     @Test
@@ -51,10 +57,10 @@ public class StackOverflowServiceTest {
 
     @Test
     public void getAnswersForQuestionTest() {
-        Mono<List<AnswerResponse>> result = stackOverflowService.getAnswersForQuestion("1");
+        Mono<List<AnswerResponse>> result = stackOverflowService.getAnswersForQuestion("2");
 
         StepVerifier.create(result)
-            .expectNextMatches(answers -> answers.size() == 1 && answers.get(0).getAnswerId() == 1L)
+            .expectNextMatches(answers -> answers.size() == 2 && answers.get(0).getAnswerId() == 2L)
             .verifyComplete();
     }
 
@@ -72,7 +78,26 @@ public class StackOverflowServiceTest {
         Mono<List<AnswerResponse>> result = stackOverflowService.getAllAnswersInfo(Arrays.asList("1", "4"));
 
         StepVerifier.create(result)
-            .expectNextMatches(answers -> answers.size() == 1 && answers.get(0).getAnswerId() == 1L)
+            .expectNextMatches(answers -> answers.size() == 2 && answers.get(0).getAnswerId() == 2L)
+            .verifyComplete();
+    }
+
+    @Test
+    public void getCombinedInfoTest() {
+        String questionId = "1";
+        Mono<CombinedStackOverflowInfo> result = stackOverflowService.getCombinedInfo(questionId);
+
+        StepVerifier.create(result)
+            .expectNextMatches(combinedInfo -> {
+                QuestionResponse question = combinedInfo.getQuestion();
+                List<AnswerResponse> answers = combinedInfo.getAnswers();
+
+                return question.getQuestionId().equals(1L)
+                    && question.getTitle().equals("Test Question")
+                    && answers.size() == 2
+                    && answers.stream().anyMatch(answer -> answer.getAnswerId().equals(2L))
+                    && answers.stream().anyMatch(answer -> answer.getAnswerId().equals(3L));
+            })
             .verifyComplete();
     }
 }

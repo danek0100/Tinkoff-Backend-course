@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -27,6 +28,7 @@ public class BotApiControllerTest {
         LinkUpdateRequest request = new LinkUpdateRequest();
         request.setUrl("http://example.com");
         request.setDescription("Пример описания");
+        request.setTgChatIds(new ArrayList<>());
 
         mockMvc.perform(post("/updates")
                 .contentType(MediaType.APPLICATION_JSON)
