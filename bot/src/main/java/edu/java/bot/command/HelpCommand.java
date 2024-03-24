@@ -34,6 +34,11 @@ public class HelpCommand implements Command {
         for (Command command : commands) {
             messageText.append(command.command()).append(": ").append(command.description()).append("\n");
         }
+
+        messageText.append("\nПоддерживаются ссылки в следующем формате:\n")
+            .append("GitHub: https://github.com/danek0100/Tinkoff-Backend-course/pull/5\n")
+            .append("StackOverflow: https://stackoverflow.com/questions/858572/how-to-make-a-new-list-in-java");
+
         LOGGER.info("Handling /help command");
         return new SendMessage(update.message().chat().id(), messageText.toString());
     }

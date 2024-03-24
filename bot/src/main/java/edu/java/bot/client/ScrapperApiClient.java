@@ -2,12 +2,22 @@ package edu.java.bot.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.java.bot.dto.AddLinkRequest;
+import edu.java.bot.dto.ApiErrorResponse;
+import edu.java.bot.dto.LinkResponse;
+import edu.java.bot.dto.ListLinksResponse;
 import edu.java.bot.dto.RemoveLinkRequest;
+import edu.java.bot.exception.ChatAlreadyRegisteredException;
+import edu.java.bot.exception.ChatNotFoundException;
+import edu.java.bot.exception.LinkAlreadyAddedException;
+import edu.java.bot.exception.LinkNotFoundException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,6 +28,8 @@ public class ScrapperApiClient {
     private final static String TG_CHAT_URI = "/tg-chat/";
     private final static String LINKS_URI = "/links";
     private final static String TG_CHAT_ID = "Tg-Chat-Id";
+    private final static String API_ERROR = "API error: ";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScrapperApiClient.class);
 
     public ScrapperApiClient(@Value("${scrapper.api.baseurl}") String baseUrl,
         HttpClient httpClient, ObjectMapper objectMapper) {
@@ -26,61 +38,99 @@ public class ScrapperApiClient {
         this.objectMapper = objectMapper;
     }
 
-    private String sendRequest(HttpRequest request) throws Exception {
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.body();
-    }
-
     private HttpRequest.Builder requestBuilder(String path) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + path))
                 .header("Content-Type", "application/json");
     }
 
-    public String registerChat(Long id) throws Exception {
+    public void registerChat(Long id) throws Exception {
         HttpRequest request = requestBuilder(TG_CHAT_URI + id)
-                .POST(HttpRequest.BodyPublishers.noBody())
-                .build();
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build();
 
-        return sendRequest(request);
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
+            ApiErrorResponse errorResponse = objectMapper.readValue(response.body(), ApiErrorResponse.class);
+            if (ChatAlreadyRegisteredException.getExceptionName().equals(errorResponse.getExceptionName())) {
+                throw new ChatAlreadyRegisteredException(errorResponse.getExceptionMessage());
+            }
+            throw new Exception(API_ERROR + errorResponse.getExceptionMessage());
+        } else if (response.statusCode() != HttpStatus.NO_CONTENT.value()) {
+            throw new Exception("Ошибка при регистрации чата.");
+        }
     }
 
-    public String deleteChat(Long id) throws Exception {
+    public void deleteChat(Long id) throws Exception {
         HttpRequest request = requestBuilder(TG_CHAT_URI + id)
                 .DELETE()
                 .build();
 
-        return sendRequest(request);
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
+            ApiErrorResponse errorResponse = objectMapper.readValue(response.body(), ApiErrorResponse.class);
+            if (ChatNotFoundException.getExceptionName().equals(errorResponse.getExceptionName())) {
+                throw new ChatNotFoundException(errorResponse.getExceptionMessage());
+            }
+            throw new Exception(API_ERROR + errorResponse.getExceptionMessage());
+        } else if (response.statusCode() != HttpStatus.NO_CONTENT.value()) {
+            throw new Exception("Ошибка при удалении чата.");
+        }
     }
 
-    public String getAllLinks(Long tgChatId) throws Exception {
+    public ListLinksResponse getAllLinks(Long tgChatId) throws Exception {
         HttpRequest request = requestBuilder(LINKS_URI)
-                .header(TG_CHAT_ID, tgChatId.toString())
-                .GET()
-                .build();
+            .header(TG_CHAT_ID, tgChatId.toString())
+            .GET()
+            .build();
 
-        return sendRequest(request);
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == HttpStatus.OK.value()) {
+            return objectMapper.readValue(response.body(), ListLinksResponse.class);
+        } else {
+            throw new Exception("Ошибка при получении списка ссылок");
+        }
     }
 
-    public String addLink(Long tgChatId, AddLinkRequest addLinkRequest) throws Exception {
+    public LinkResponse addLink(Long tgChatId, AddLinkRequest addLinkRequest) throws Exception {
         String requestBody = objectMapper.writeValueAsString(addLinkRequest);
-
         HttpRequest request = requestBuilder(LINKS_URI)
-                .header(TG_CHAT_ID, tgChatId.toString())
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
+            .header(TG_CHAT_ID, tgChatId.toString())
+            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+            .build();
 
-        return sendRequest(request);
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
+            ApiErrorResponse errorResponse = objectMapper.readValue(response.body(), ApiErrorResponse.class);
+            if (LinkAlreadyAddedException.getExceptionName().equals(errorResponse.getExceptionName())) {
+                throw new LinkAlreadyAddedException(errorResponse.getExceptionMessage());
+            } else if (ChatNotFoundException.getExceptionName().equals(errorResponse.getExceptionName())) {
+                throw new ChatNotFoundException(errorResponse.getExceptionMessage());
+            }
+            throw new Exception(API_ERROR + errorResponse.getExceptionMessage());
+        }
+
+        return objectMapper.readValue(response.body(), LinkResponse.class);
     }
 
-    public String removeLink(Long tgChatId, RemoveLinkRequest removeLinkRequest) throws Exception {
+    public LinkResponse removeLink(Long tgChatId, RemoveLinkRequest removeLinkRequest) throws Exception {
         String requestBody = objectMapper.writeValueAsString(removeLinkRequest);
-
         HttpRequest request = requestBuilder(LINKS_URI)
-                .header(TG_CHAT_ID, tgChatId.toString())
-                .method("DELETE", HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
+            .header(TG_CHAT_ID, tgChatId.toString())
+            .method("DELETE", HttpRequest.BodyPublishers.ofString(requestBody))
+            .build();
 
-        return sendRequest(request);
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
+            ApiErrorResponse errorResponse = objectMapper.readValue(response.body(), ApiErrorResponse.class);
+            if (LinkNotFoundException.getExceptionName().equals(errorResponse.getExceptionName())) {
+                throw new LinkNotFoundException(errorResponse.getExceptionMessage());
+            } else if (ChatNotFoundException.getExceptionName().equals(errorResponse.getExceptionName())) {
+                throw new ChatNotFoundException(errorResponse.getExceptionMessage());
+            }
+            throw new Exception(API_ERROR + errorResponse.getExceptionMessage());
+        }
+        return objectMapper.readValue(response.body(), LinkResponse.class);
     }
 }

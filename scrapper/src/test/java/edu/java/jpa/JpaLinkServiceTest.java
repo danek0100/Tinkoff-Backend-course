@@ -1,48 +1,50 @@
-package edu.java.jdbc;
+package edu.java.jpa;
 
 import edu.java.dto.LinkDTO;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
 import edu.java.scrapper.IntegrationTest;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import edu.java.service.LinkService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@TestPropertySource(properties = {"app.database-access-type=jdbc"})
-public class JdbcLinkServiceTest extends IntegrationTest {
+@TestPropertySource(properties = {"app.database-access-type=jpa"})
+public class JpaLinkServiceTest extends IntegrationTest {
 
     @Autowired
-    private JdbcLinkService linkService;
+    private LinkService linkService;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private LinkRepository linkRepository;
 
     private final String testUrl = "http://example.com/test";
     private final String testDescription = "Test Description";
-    private Long testLinkId;
 
     @BeforeEach
     void setup() {
-        jdbcTemplate.update("DELETE FROM link WHERE url = ?", testUrl);
-        LinkDTO link = new LinkDTO(null, testUrl, testDescription, LocalDateTime.now(), null, null);
-        testLinkId = linkService.add(testUrl, testDescription).getLinkId();
+        linkRepository.deleteAll();
     }
 
     @Test
     @Transactional
     @Rollback
     void add_ThrowsLinkAlreadyAddedException_WhenLinkExists() {
+        linkService.add(testUrl, testDescription); // Add the link first time
+
         assertThrows(LinkAlreadyAddedException.class, () -> {
             linkService.add(testUrl, "Another Description");
         });
@@ -61,11 +63,12 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Transactional
     @Rollback
     void update_UpdatesLinkSuccessfully() {
+        LinkDTO linkDTO = linkService.add(testUrl, testDescription);
         String updatedDescription = "Updated Description";
-        LinkDTO updatedLink = new LinkDTO(testLinkId, testUrl, updatedDescription, LocalDateTime.now(), null, null);
-        assertDoesNotThrow(() -> linkService.update(updatedLink));
+        linkDTO.setDescription(updatedDescription);
+        assertDoesNotThrow(() -> linkService.update(linkDTO));
 
-        LinkDTO foundLink = linkService.findById(testLinkId);
+        LinkDTO foundLink = linkService.findById(linkDTO.getLinkId());
         assertEquals(updatedDescription, foundLink.getDescription());
     }
 
@@ -73,7 +76,8 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Transactional
     @Rollback
     void findById_ReturnsCorrectLink() {
-        LinkDTO foundLink = linkService.findById(testLinkId);
+        LinkDTO addedLink = linkService.add(testUrl, testDescription);
+        LinkDTO foundLink = linkService.findById(addedLink.getLinkId());
         assertNotNull(foundLink);
         assertEquals(testUrl, foundLink.getUrl());
     }
@@ -82,6 +86,7 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Transactional
     @Rollback
     void findByUrl_ReturnsCorrectLink() {
+        linkService.add(testUrl, testDescription);
         LinkDTO foundLink = linkService.findByUrl(testUrl);
         assertNotNull(foundLink);
         assertEquals(testDescription, foundLink.getDescription());
@@ -91,6 +96,7 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Transactional
     @Rollback
     void listAll_ReturnsAllLinks() {
+        linkService.add(testUrl, testDescription);
         Collection<LinkDTO> allLinks = linkService.listAll();
         assertFalse(allLinks.isEmpty());
         assertTrue(allLinks.stream().anyMatch(link -> link.getUrl().equals(testUrl)));
@@ -100,6 +106,7 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Transactional
     @Rollback
     void findLinksToCheck_ReturnsLinksNotCheckedSince() {
+        linkService.add(testUrl, testDescription);
         LocalDateTime threshold = LocalDateTime.now().minusDays(1);
         Collection<LinkDTO> linksToCheck = linkService.findLinksToCheck(threshold);
         assertFalse(linksToCheck.isEmpty());

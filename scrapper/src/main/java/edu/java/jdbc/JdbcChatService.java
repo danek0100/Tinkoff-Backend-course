@@ -7,10 +7,7 @@ import edu.java.exception.ChatNotFoundException;
 import edu.java.service.ChatService;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
 
-
-@Service
 @AllArgsConstructor
 public class JdbcChatService implements ChatService {
 

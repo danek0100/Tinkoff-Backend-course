@@ -40,6 +40,11 @@ class HelpCommandTest {
             expectedResponse.append(cmd.command()).append(": ").append(cmd.description()).append("\n");
         }
 
+        expectedResponse.append("\nПоддерживаются ссылки в следующем формате:\n")
+            .append("GitHub: https://github.com/danek0100/Tinkoff-Backend-course/pull/5\n")
+            .append("StackOverflow: https://stackoverflow.com/questions/858572/how-to-make-a-new-list-in-java");
+
+
         assertEquals(expectedResponse.toString().trim(), text.trim());
     }
 }
