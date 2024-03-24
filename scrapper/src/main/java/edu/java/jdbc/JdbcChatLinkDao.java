@@ -3,42 +3,32 @@ package edu.java.jdbc;
 import edu.java.dao.ChatLinkDao;
 import edu.java.dto.ChatLinkDTO;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Repository
+@AllArgsConstructor
 @SuppressWarnings("MultipleStringLiterals")
 public class JdbcChatLinkDao implements ChatLinkDao {
 
     private final JdbcTemplate jdbcTemplate;
-    private final TransactionTemplate transactionTemplate;
 
-    @Autowired
-    public JdbcChatLinkDao(JdbcTemplate jdbcTemplate, TransactionTemplate transactionTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.transactionTemplate = transactionTemplate;
-    }
-
+    @Transactional
     @Override
     public void add(ChatLinkDTO chatLink) {
-        transactionTemplate.execute(status -> {
-            jdbcTemplate.update(
-                "INSERT INTO chat_link (chat_id, link_id, shared_at) VALUES (?, ?, ?)",
-                chatLink.getChatId(), chatLink.getLinkId(), chatLink.getSharedAt()
-            );
-            return null;
-        });
+        jdbcTemplate.update(
+            "INSERT INTO chat_link (chat_id, link_id, shared_at) VALUES (?, ?, ?)",
+            chatLink.getChatId(), chatLink.getLinkId(), chatLink.getSharedAt()
+        );
     }
 
+    @Transactional
     @Override
     public void remove(Long chatId, Long linkId) {
-        transactionTemplate.execute(status -> {
-            jdbcTemplate.update("DELETE FROM chat_link WHERE chat_id = ? AND link_id = ?", chatId, linkId);
-            return null;
-        });
+        jdbcTemplate.update("DELETE FROM chat_link WHERE chat_id = ? AND link_id = ?", chatId, linkId);
     }
 
     @Override

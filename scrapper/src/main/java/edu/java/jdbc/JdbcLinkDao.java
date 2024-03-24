@@ -8,28 +8,23 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Repository
+@AllArgsConstructor
 @SuppressWarnings("MultipleStringLiterals")
 public class JdbcLinkDao implements LinkDao {
 
     private final JdbcTemplate jdbcTemplate;
-    private final TransactionTemplate transactionTemplate;
-
-    @Autowired
-    public JdbcLinkDao(JdbcTemplate jdbcTemplate, TransactionTemplate transactionTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.transactionTemplate = transactionTemplate;
-    }
 
     @Override
+    @Transactional
     @SuppressWarnings("MagicNumber")
     public Long add(LinkDTO link) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -55,20 +50,16 @@ public class JdbcLinkDao implements LinkDao {
         return null;
     }
 
+    @Transactional
     @Override
     public void remove(Long linkId) {
-        transactionTemplate.execute(status -> {
-            jdbcTemplate.update("DELETE FROM link WHERE link_id = ?", linkId);
-            return null;
-        });
+        jdbcTemplate.update("DELETE FROM link WHERE link_id = ?", linkId);
     }
 
+    @Transactional
     @Override
     public void remove(String url) {
-        transactionTemplate.execute(status -> {
-            jdbcTemplate.update("DELETE FROM link WHERE url = ?", url);
-            return null;
-        });
+        jdbcTemplate.update("DELETE FROM link WHERE url = ?", url);
     }
 
     @Override
@@ -88,19 +79,17 @@ public class JdbcLinkDao implements LinkDao {
         );
     }
 
+    @Transactional
     @Override
     public void update(LinkDTO link) {
-        transactionTemplate.execute(status -> {
-            jdbcTemplate.update(
-                "UPDATE link SET url = ?, description = ?, last_check_time = ?, last_update_time = ? WHERE link_id = ?",
-                link.getUrl(),
-                link.getDescription(),
-                link.getLastCheckTime() != null ? Timestamp.valueOf(link.getLastCheckTime()) : null,
-                link.getLastUpdateTime() != null ? Timestamp.valueOf(link.getLastUpdateTime()) : null,
-                link.getLinkId()
-            );
-            return null;
-        });
+        jdbcTemplate.update(
+            "UPDATE link SET url = ?, description = ?, last_check_time = ?, last_update_time = ? WHERE link_id = ?",
+            link.getUrl(),
+            link.getDescription(),
+            link.getLastCheckTime() != null ? Timestamp.valueOf(link.getLastCheckTime()) : null,
+            link.getLastUpdateTime() != null ? Timestamp.valueOf(link.getLastUpdateTime()) : null,
+            link.getLinkId()
+        );
     }
 
     @Override

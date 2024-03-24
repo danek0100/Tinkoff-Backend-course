@@ -57,7 +57,7 @@ public class ScrapperApiController {
     }
 
     @PostMapping("/links")
-    public ResponseEntity<?> addLink(@RequestHeader("Tg-Chat-Id") Long tgChatId,
+    public ResponseEntity<LinkResponse> addLink(@RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody AddLinkRequest addLinkRequest) {
         LinkDTO addedLink = linkService.add(addLinkRequest.getLink(), addLinkRequest.getDescription());
 
@@ -69,18 +69,19 @@ public class ScrapperApiController {
     }
 
     @DeleteMapping("/links")
-    public ResponseEntity<?> removeLink(@RequestHeader("Tg-Chat-Id") Long tgChatId,
+    public ResponseEntity<LinkResponse> removeLink(@RequestHeader("Tg-Chat-Id") Long tgChatId,
         @RequestBody RemoveLinkRequest removeLinkRequest) {
-        Long linkId = linkService.findByUrl(removeLinkRequest.getLink()).getLinkId();
+        LinkDTO link = linkService.findByUrl(removeLinkRequest.getLink());
 
-        chatLinkService.removeLinkFromChat(tgChatId, linkId);
+        chatLinkService.removeLinkFromChat(tgChatId, link.getLinkId());
 
-        if (!chatLinkService.existsChatsForLink(linkId)) {
+        if (!chatLinkService.existsChatsForLink(link.getLinkId())) {
             linkService.remove(removeLinkRequest.getLink());
         }
 
-        return ResponseEntity.noContent().build();
+        LinkResponse response =
+            new LinkResponse(link.getLinkId(), link.getUrl(), link.getDescription());
+        return ResponseEntity.ok(response);
     }
-
 }
 

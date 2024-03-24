@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class JdbcLinkService implements LinkService {
 
     private final LinkDao linkDao;
-    private final static String NOT_FOUND = "not found";
+    private final static String NOT_FOUND = " not found.";
 
     @Override
     public LinkDTO add(String url, String description) throws LinkAlreadyAddedException {
@@ -30,7 +30,7 @@ public class JdbcLinkService implements LinkService {
     @Override
     public void remove(String url) {
         if (!linkDao.existsByUrl(url)) {
-            throw new LinkNotFoundException(url + " " + NOT_FOUND + ".");
+            throw new LinkNotFoundException(url + NOT_FOUND);
         }
         linkDao.remove(url);
     }
@@ -43,7 +43,7 @@ public class JdbcLinkService implements LinkService {
     @Override
     public void update(LinkDTO link) {
         if (!linkDao.existsByUrl(link.getUrl())) {
-            throw new LinkNotFoundException(link.getUrl() + " " + NOT_FOUND + ".");
+            throw new LinkNotFoundException(link.getUrl() + NOT_FOUND);
         }
         linkDao.update(link);
     }
@@ -52,7 +52,7 @@ public class JdbcLinkService implements LinkService {
     public LinkDTO findById(Long linkId) {
         LinkDTO foundDTO = linkDao.findById(linkId);
         if (foundDTO == null) {
-            throw new LinkNotFoundException(linkId + " " + NOT_FOUND + ".");
+            throw new LinkNotFoundException(linkId + NOT_FOUND);
         }
         return foundDTO;
     }
@@ -61,7 +61,7 @@ public class JdbcLinkService implements LinkService {
     public LinkDTO findByUrl(String linkUrl) {
         LinkDTO foundDTO = linkDao.findByUrl(linkUrl);
         if (foundDTO == null) {
-            throw new LinkNotFoundException(linkUrl + " " + NOT_FOUND + ".");
+            throw new LinkNotFoundException(linkUrl + NOT_FOUND);
         }
         return foundDTO;
     }

@@ -3,39 +3,29 @@ package edu.java.jdbc;
 import edu.java.dao.ChatDao;
 import edu.java.dto.ChatDTO;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Repository
+@AllArgsConstructor
 public class JdbcChatDao implements ChatDao {
 
     private final JdbcTemplate jdbcTemplate;
-    private final TransactionTemplate transactionTemplate;
 
-    @Autowired
-    public JdbcChatDao(JdbcTemplate jdbcTemplate, TransactionTemplate transactionTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.transactionTemplate = transactionTemplate;
-    }
-
+    @Transactional
     @Override
     public void add(ChatDTO chat) {
-        transactionTemplate.execute(status -> {
-            jdbcTemplate.update("INSERT INTO chat (chat_id, created_at) VALUES (?, ?)",
-                    chat.getChatId(), chat.getCreatedAt());
-            return null;
-        });
+        jdbcTemplate.update("INSERT INTO chat (chat_id, created_at) VALUES (?, ?)",
+                chat.getChatId(), chat.getCreatedAt());
     }
 
+    @Transactional
     @Override
     public void remove(Long chatId) {
-        transactionTemplate.execute(status -> {
-            jdbcTemplate.update("DELETE FROM chat WHERE chat_id = ?", chatId);
-            return null;
-        });
+        jdbcTemplate.update("DELETE FROM chat WHERE chat_id = ?", chatId);
     }
 
     @Override

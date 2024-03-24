@@ -102,7 +102,7 @@ public class ScrapperApiControllerTest {
     }
 
     @Test
-    public void removeLink_ShouldReturnSuccessMessage() throws Exception {
+    public void removeLink_ShouldReturnLinkResponse() throws Exception {
         when(linkService.findByUrl(anyString())).thenReturn(testLink);
 
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest();
@@ -112,6 +112,9 @@ public class ScrapperApiControllerTest {
                 .header("Tg-Chat-Id", testChatId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(removeLinkRequest)))
-            .andExpect(status().isNoContent());
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(testLinkId))
+            .andExpect(jsonPath("$.url").value(testUrl));
     }
 }
