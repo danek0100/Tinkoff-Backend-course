@@ -4,7 +4,9 @@ import java.time.OffsetDateTime;
 
 public interface Comment {
 
-    String getBody();
+    String getCommentDescription();
 
     OffsetDateTime getCreatedAt();
+
+    OffsetDateTime getUpdatedAt();
 }

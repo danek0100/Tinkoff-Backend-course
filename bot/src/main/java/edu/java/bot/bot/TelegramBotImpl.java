@@ -75,4 +75,9 @@ public class TelegramBotImpl implements Bot {
         LOGGER.debug("Executing request: {}", request.getMethod());
         bot.execute(request);
     }
+
+    public void sendChatMessage(Long chatId, String message) {
+        SendMessage request = new SendMessage(chatId.toString(), message);
+        this.execute(request);
+    }
 }

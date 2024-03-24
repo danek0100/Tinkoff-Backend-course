@@ -6,6 +6,7 @@ import edu.java.dto.ChatLinkDTO;
 import edu.java.dto.Comment;
 import edu.java.dto.LinkDTO;
 import edu.java.dto.LinkUpdateRequest;
+import edu.java.dto.QuestionResponse;
 import edu.java.service.ChatLinkService;
 import edu.java.service.GitHubService;
 import edu.java.service.LinkService;
@@ -16,8 +17,9 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
+@SuppressWarnings("MultipleStringLiterals")
 public class LinkUpdaterScheduler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkUpdaterScheduler.class);
@@ -80,63 +83,93 @@ public class LinkUpdaterScheduler {
         String repo = GitHubLinkExtractor.extractRepo(link.getUrl());
         int pullRequestId = GitHubLinkExtractor.extractPullRequestId(link.getUrl());
 
-        gitHubService.getPullRequestInfo(owner, repo, pullRequestId).subscribe(combinedInfo -> {
-            OffsetDateTime latestCommentDate = Stream.concat(
-                    combinedInfo.getIssueComments().stream(),
-                    combinedInfo.getPullComments().stream())
-                .map(Comment::getCreatedAt)
-                .max(Comparator.naturalOrder())
-                .orElse(null);
+        return gitHubService.getPullRequestInfo(owner, repo, pullRequestId)
+            .flatMap(combinedInfo -> {
+                List<Comment> updatedComments = Stream.concat(
+                        combinedInfo.getIssueComments().stream(),
+                        combinedInfo.getPullComments().stream())
+                    .filter(comment -> link.getLastUpdateTime() == null
+                        || comment.getUpdatedAt().isAfter(link.getLastUpdateTime().atZone(
+                            ZoneId.systemDefault()).toInstant().atOffset(ZoneOffset.UTC)
+                    )).toList();
 
-            if (latestCommentDate != null && (link.getLastUpdateTime() == null
-                || latestCommentDate.isAfter(
-                    link.getLastUpdateTime().atZone(ZoneId.systemDefault()).toInstant().atOffset(ZoneOffset.UTC))
-            )) {
+                if (!updatedComments.isEmpty()) {
+                    if (link.getLastUpdateTime() != null) {
+                        String updateMessage = updatedComments.stream()
+                            .map(Comment::getCommentDescription)
+                            .collect(Collectors.joining("\n\n---\n\n"));
 
-                LinkUpdateRequest updateRequest = new LinkUpdateRequest(
-                    link.getLinkId(),
-                    link.getUrl(),
-                    link.getDescription(),
-                    chatLinkService.findAllChatsForLink(link.getLinkId())
-                        .stream()
-                        .map(ChatLinkDTO::getChatId)
-                        .collect(Collectors.toList())
-                );
-
-                botApiClient.postUpdate(updateRequest).subscribe();
-                updateLinkWithNewTimes(link, LocalDateTime.now(), latestCommentDate.toLocalDateTime());
-            } else {
-                updateLinkLastCheckTime(link, LocalDateTime.now());
-            }
-        });
-        return Mono.just(link);
+                        LinkUpdateRequest updateRequest = new LinkUpdateRequest(
+                            link.getLinkId(),
+                            link.getUrl(),
+                            updateMessage,
+                            chatLinkService.findAllChatsForLink(link.getLinkId())
+                                .stream()
+                                .map(ChatLinkDTO::getChatId)
+                                .collect(Collectors.toList())
+                        );
+                        botApiClient.postUpdate(updateRequest).subscribe();
+                    }
+                    return Mono.just(updateLinkWithNewTimes(link, LocalDateTime.now(),
+                        OffsetDateTime.now().toLocalDateTime()));
+                }
+                return Mono.just(updateLinkLastCheckTime(link, LocalDateTime.now()));
+            });
     }
 
+    @SuppressWarnings("LambdaBodyLength")
     private Mono<LinkDTO> checkStackOverflowLink(LinkDTO link) {
         String questionId = StackOverflowLinkExtractor.extractQuestionId(link.getUrl());
 
         return stackOverflowService.getCombinedInfo(questionId)
             .flatMap(combinedInfo -> {
-                if (link.getLastUpdateTime() == null
-                    || combinedInfo.getLatestUpdate().isAfter(
-                        link.getLastUpdateTime().atZone(ZoneId.systemDefault()).toInstant().atOffset(ZoneOffset.UTC)
-                )) {
-                    LinkUpdateRequest updateRequest = new LinkUpdateRequest(
-                        link.getLinkId(),
-                        link.getUrl(),
-                        link.getDescription(),
-                        chatLinkService.findAllChatsForLink(link.getLinkId())
-                            .stream()
-                            .map(ChatLinkDTO::getChatId)
-                            .collect(Collectors.toList())
-                    );
+                OffsetDateTime latestUpdate = combinedInfo.getLatestUpdate();
+                OffsetDateTime comparisonBaseTime = link.getLastUpdateTime() != null
+                    ? link.getLastUpdateTime().atZone(ZoneId.systemDefault()).toInstant().atOffset(ZoneOffset.UTC)
+                    : OffsetDateTime.MIN;
 
-                    return botApiClient.postUpdate(updateRequest)
-                        .thenReturn(updateLinkWithNewTimes(link, LocalDateTime.now(),
-                            combinedInfo.getLatestUpdate().toLocalDateTime()));
-                } else {
-                    return Mono.just(updateLinkLastCheckTime(link, LocalDateTime.now()));
+
+                if (link.getLastUpdateTime() == null || latestUpdate.isAfter(link.getLastUpdateTime().atZone(
+                    ZoneId.systemDefault()).toInstant().atOffset(ZoneOffset.UTC)
+                )) {
+                    List<String> updateMessages = new ArrayList<>();
+                    QuestionResponse question = combinedInfo.getQuestion();
+
+                    combinedInfo.getAnswers().forEach(answer -> {
+                        if (answer.getLastActivityDate().isAfter(comparisonBaseTime)) {
+                            if (updateMessages.isEmpty()) {
+                                updateMessages.add("Произошли изменения в: " + question.getTitle());
+                            }
+                            updateMessages.add("Добавлен или изменён ответ: https://stackoverflow.com/a/"
+                                + answer.getAnswerId());
+                        }
+                    });
+
+                    if (updateMessages.isEmpty() && question.getLastActivityDate().isAfter(comparisonBaseTime)) {
+                        updateMessages.add("Произошли изменения в: " + question.getTitle()
+                            + "\nhttps://stackoverflow.com/q/" + question.getQuestionId());
+                    }
+
+                    if (!updateMessages.isEmpty()) {
+                        if (link.getLastUpdateTime() != null) {
+                            String descriptionUpdate = String.join("\n", updateMessages);
+
+                            LinkUpdateRequest updateRequest = new LinkUpdateRequest(
+                                link.getLinkId(),
+                                link.getUrl(),
+                                descriptionUpdate,
+                                chatLinkService.findAllChatsForLink(link.getLinkId())
+                                    .stream()
+                                    .map(ChatLinkDTO::getChatId)
+                                    .collect(Collectors.toList())
+                            );
+                            botApiClient.postUpdate(updateRequest).subscribe();
+                        }
+                        return Mono.just(updateLinkWithNewTimes(link, LocalDateTime.now(),
+                            latestUpdate.toLocalDateTime()));
+                    }
                 }
+                return Mono.just(updateLinkLastCheckTime(link, LocalDateTime.now()));
             });
     }
 

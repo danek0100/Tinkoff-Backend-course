@@ -31,8 +31,10 @@ public class GitHubServiceTest {
         MockitoAnnotations.openMocks(this);
 
         PullRequestResponse mockPullRequestResponse = new PullRequestResponse(1L, "Test PR", "", "");
-        IssuesCommentsResponse mockIssueComment = new IssuesCommentsResponse("", 1L, OffsetDateTime.now(), "Issue Comment");
-        PullCommentsResponse mockPullComment = new PullCommentsResponse("", 2L, "", OffsetDateTime.now(), "Pull Comment");
+        IssuesCommentsResponse mockIssueComment = new IssuesCommentsResponse("", 1L,
+            OffsetDateTime.now(), OffsetDateTime.now(), "Issue Comment");
+        PullCommentsResponse mockPullComment = new PullCommentsResponse("", 2L, "",
+            OffsetDateTime.now(), OffsetDateTime.now(), "Pull Comment");
 
         when(gitHubClient.fetchPullRequestDetails(anyString(), anyString(), anyInt()))
             .thenReturn(Mono.just(mockPullRequestResponse));
