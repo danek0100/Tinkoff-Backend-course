@@ -39,3 +39,7 @@ springdoc:
   swagger-ui:
     path: /swagger-ui
 
+rate-limiting:
+  capacity: 20
+  tokens: 20
+  refill-duration: 60

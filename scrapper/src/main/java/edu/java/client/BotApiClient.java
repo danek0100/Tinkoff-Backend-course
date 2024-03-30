@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+import java.time.Duration;
 
 @Component
 public class BotApiClient {
@@ -21,7 +23,11 @@ public class BotApiClient {
                 .uri("/updates")
                 .bodyValue(linkUpdate)
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(String.class)
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                    .maxBackoff(Duration.ofMinutes(1))
+                    .jitter(0.5)
+                );
     }
 
     void setWebClient(WebClient webClient) {
