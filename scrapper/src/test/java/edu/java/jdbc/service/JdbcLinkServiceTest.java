@@ -1,8 +1,9 @@
-package edu.java.jdbc;
+package edu.java.jdbc.service;
 
 import edu.java.dto.LinkDTO;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
+import edu.java.jdbc.service.JdbcLinkService;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

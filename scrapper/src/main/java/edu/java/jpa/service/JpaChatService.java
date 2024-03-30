@@ -1,8 +1,9 @@
-package edu.java.jpa;
+package edu.java.jpa.service;
 
 import edu.java.domain.Chat;
 import edu.java.exception.ChatAlreadyRegisteredException;
 import edu.java.exception.ChatNotFoundException;
+import edu.java.jpa.repository.ChatRepository;
 import edu.java.service.ChatService;
 import java.time.LocalDateTime;
 import org.springframework.transaction.annotation.Transactional;

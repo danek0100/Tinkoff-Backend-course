@@ -1,4 +1,4 @@
-package edu.java.jpa;
+package edu.java.jpa.repository;
 
 import edu.java.domain.Link;
 import java.time.LocalDateTime;

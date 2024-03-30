@@ -1,4 +1,4 @@
-package edu.java.jdbc;
+package edu.java.jdbc.dao;
 
 import edu.java.dao.ChatLinkDao;
 import edu.java.dto.ChatLinkDTO;
