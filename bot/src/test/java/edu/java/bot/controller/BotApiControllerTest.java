@@ -1,11 +1,15 @@
 package edu.java.bot.controller;
 
 import edu.java.bot.bot.TelegramBotImpl;
+import edu.java.bot.bucket.BucketManager;
 import edu.java.bot.dto.LinkUpdateRequest;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.ConsumptionProbe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,8 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,9 +39,22 @@ public class BotApiControllerTest {
     @MockBean
     private TelegramBotImpl telegramBot;
 
+    @MockBean
+    private BucketManager bucketManager;
+
+    @Mock
+    private Bucket mockBucket;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+
+        ConsumptionProbe probe = Mockito.mock(ConsumptionProbe.class);
+        when(probe.isConsumed()).thenReturn(true);
+        when(mockBucket.tryConsumeAndReturnRemaining(1)).thenReturn(probe);
+
+        when(bucketManager.resolveBucket(anyString())).thenReturn(mockBucket);
+
     }
 
     @Test

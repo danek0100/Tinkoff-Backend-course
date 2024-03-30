@@ -1,15 +1,14 @@
 package edu.java.bucket;
 
 import edu.java.configuration.RateLimitingProperties;
-import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor

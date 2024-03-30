@@ -1,21 +1,18 @@
 package edu.java.bot.bucket;
 
 import edu.java.bot.configuration.RateLimitingProperties;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
 public class BucketManager {
-
 
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
     private final RateLimitingProperties properties;

@@ -6,16 +6,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
-import java.time.Duration;
 
 @Component
 public class BotApiClient {
     private WebClient webClient;
+    private final Retry retrySpec;
 
-    public BotApiClient(@Value("${bot.api.baseurl}") String baseUrl) {
+    public BotApiClient(@Value("${bot.api.baseurl}") String baseUrl, Retry retrySpec) {
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
                 .build();
+        this.retrySpec = retrySpec;
     }
 
     public Mono<String> postUpdate(LinkUpdateRequest linkUpdate) {
@@ -24,10 +25,7 @@ public class BotApiClient {
                 .bodyValue(linkUpdate)
                 .retrieve()
                 .bodyToMono(String.class)
-                .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
-                    .maxBackoff(Duration.ofMinutes(1))
-                    .jitter(0.5)
-                );
+                .retryWhen(retrySpec);
     }
 
     void setWebClient(WebClient webClient) {

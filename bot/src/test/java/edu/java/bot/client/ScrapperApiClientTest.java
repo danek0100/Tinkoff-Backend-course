@@ -4,17 +4,22 @@ import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import edu.java.bot.backoff.BackOffStrategy;
+import edu.java.bot.backoff.ConstBackOff;
+import edu.java.bot.bucket.BucketManager;
+import edu.java.bot.configuration.BackOffProperties;
 import edu.java.bot.dto.AddLinkRequest;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Collections;
 import edu.java.bot.dto.RemoveLinkRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 class ScrapperApiClientTest {
 
@@ -24,17 +29,43 @@ class ScrapperApiClientTest {
     @Mock
     private HttpResponse<String> mockHttpResponse;
 
+    @MockBean
+    private BucketManager bucketManager;
+
     private ScrapperApiClient scrapperApiClient;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @SuppressWarnings("unchecked")
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
+
+        when(mockHttpResponse.statusCode()).thenReturn(200);
         when(mockHttpResponse.body()).thenReturn("Expected response");
+
         when(mockHttpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
             .thenReturn(mockHttpResponse);
-        scrapperApiClient = new ScrapperApiClient("http://localhost:8080", mockHttpClient, objectMapper);
+
+        BackOffProperties backOffProperties = new BackOffProperties();
+        backOffProperties.setRetryableStatusCodes(Collections.singletonList(500));
+        backOffProperties.setInitialDelay(100);
+        backOffProperties.setMaxAttempts(2);
+        BackOffStrategy backOffStrategy = new ConstBackOff(backOffProperties.getInitialDelay());
+
+        scrapperApiClient = new ScrapperApiClient("http://localhost:8080", mockHttpClient,
+            objectMapper, backOffStrategy, backOffProperties);
+    }
+
+
+    @Test
+    void testRetryOnFailure() throws Exception {
+        Long tgChatId = 1L;
+        when(mockHttpResponse.statusCode()).thenReturn(500, 200);
+
+        String result = scrapperApiClient.getAllLinks(tgChatId);
+
+        assertEquals("Expected response", result);
+        verify(mockHttpClient, times(2)).send(any(HttpRequest.class), any());
     }
 
     @Test

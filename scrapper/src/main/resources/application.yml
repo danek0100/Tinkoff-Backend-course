@@ -43,3 +43,9 @@ rate-limiting:
   capacity: 20
   tokens: 20
   refill-duration: 60
+
+retry:
+  max-attempts: 3
+  first-backoff-seconds: 1
+  max-backoff-seconds: 5
+  retryable-status-codes: [500, 502, 503, 504]

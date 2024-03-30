@@ -25,3 +25,11 @@ rate-limiting:
   capacity: 20
   tokens: 20
   refill-duration: 60 # Время в секундах
+
+backoff:
+  strategy: exponential # Или "constant", "linear"
+  initialDelay: 1000
+  multiplier: 2.0
+  increment: 1000
+  maxAttempts: 1000
+  retryable-status-codes: [500, 502, 503, 504]
