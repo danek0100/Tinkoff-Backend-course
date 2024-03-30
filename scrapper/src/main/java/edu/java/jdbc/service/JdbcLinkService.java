@@ -1,4 +1,4 @@
-package edu.java.jdbc;
+package edu.java.jdbc.service;
 
 import edu.java.dao.LinkDao;
 import edu.java.dto.LinkDTO;
@@ -8,9 +8,7 @@ import edu.java.service.LinkService;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @AllArgsConstructor
 public class JdbcLinkService implements LinkService {
 

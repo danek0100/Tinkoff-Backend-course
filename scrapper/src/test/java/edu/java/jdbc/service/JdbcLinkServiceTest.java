@@ -1,8 +1,9 @@
-package edu.java.jdbc;
+package edu.java.jdbc.service;
 
 import edu.java.dto.LinkDTO;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
+import edu.java.jdbc.service.JdbcLinkService;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -18,6 +20,7 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@TestPropertySource(properties = {"app.database-access-type=jdbc"})
 public class JdbcLinkServiceTest extends IntegrationTest {
 
     @Autowired
