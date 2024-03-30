@@ -1,4 +1,4 @@
-package edu.java.jpa;
+package edu.java.jpa.repository;
 
 import edu.java.domain.ChatLink;
 import edu.java.domain.ChatLinkId;

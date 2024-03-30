@@ -1,9 +1,10 @@
-package edu.java.jpa;
+package edu.java.jpa.service;
 
 import edu.java.domain.Link;
 import edu.java.dto.LinkDTO;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
+import edu.java.jpa.repository.LinkRepository;
 import edu.java.service.LinkService;
 import java.time.LocalDateTime;
 import java.util.Collection;

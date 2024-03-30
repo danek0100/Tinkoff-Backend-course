@@ -1,6 +1,7 @@
-package edu.java.jdbc;
+package edu.java.jdbc.dao;
 
 import edu.java.dto.ChatLinkDTO;
+import edu.java.jdbc.dao.JdbcChatLinkDao;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

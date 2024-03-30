@@ -1,39 +1,41 @@
-package edu.java.jpa;
+package edu.java.jdbc.service;
 
-import edu.java.domain.Chat;
+import edu.java.dao.ChatDao;
 import edu.java.dto.ChatDTO;
 import edu.java.exception.ChatAlreadyRegisteredException;
 import edu.java.exception.ChatNotFoundException;
+import edu.java.jdbc.service.JdbcChatService;
 import edu.java.scrapper.IntegrationTest;
-import java.time.LocalDateTime;
-import edu.java.service.ChatService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.LocalDateTime;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@TestPropertySource(properties = {"app.database-access-type=jpa"})
-public class JpaChatServiceTest extends IntegrationTest {
+@TestPropertySource(properties = {"app.database-access-type=jdbc"})
+public class JdbcChatServiceTest extends IntegrationTest {
 
     @Autowired
-    private ChatService chatService;
+    private JdbcChatService chatService;
 
     @Autowired
-    private ChatRepository chatRepository;
+    private ChatDao chatDao;
 
-    private final long testChatId = 100L;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    private final long testChatId = 1L;
 
     @BeforeEach
     void setup() {
-        chatRepository.deleteAll();
+        jdbcTemplate.update("DELETE FROM chat WHERE chat_id = ?", testChatId);
     }
 
     @Test
@@ -41,17 +43,14 @@ public class JpaChatServiceTest extends IntegrationTest {
     @Rollback
     void register_CreatesNewChat_WhenChatDoesNotExist() {
         assertDoesNotThrow(() -> chatService.register(testChatId));
-        assertTrue(chatRepository.existsById(testChatId));
+        assertTrue(chatDao.existsById(testChatId));
     }
 
     @Test
     @Transactional
     @Rollback
     void register_ThrowsChatAlreadyRegisteredException_WhenChatExists() {
-        Chat chat = new Chat();
-        chat.setChatId(testChatId);
-        chat.setCreatedAt(LocalDateTime.now());
-        chatRepository.save(chat);
+        chatDao.add(new ChatDTO(testChatId, LocalDateTime.now()));
 
         Exception exception = assertThrows(ChatAlreadyRegisteredException.class, () ->
             chatService.register(testChatId));
@@ -62,13 +61,9 @@ public class JpaChatServiceTest extends IntegrationTest {
     @Transactional
     @Rollback
     void unregister_RemovesChat_WhenChatExists() {
-        Chat chat = new Chat();
-        chat.setChatId(testChatId);
-        chat.setCreatedAt(LocalDateTime.now());
-        chatRepository.save(chat);
-
+        chatDao.add(new ChatDTO(testChatId, LocalDateTime.now()));
         assertDoesNotThrow(() -> chatService.unregister(testChatId));
-        assertFalse(chatRepository.existsById(testChatId));
+        assertFalse(chatDao.existsById(testChatId));
     }
 
     @Test

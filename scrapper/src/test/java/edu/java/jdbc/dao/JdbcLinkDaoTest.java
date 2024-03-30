@@ -1,7 +1,7 @@
-package edu.java.jdbc;
+package edu.java.jdbc.dao;
 
 import edu.java.dto.LinkDTO;
-import edu.java.jdbc.JdbcLinkDao;
+import edu.java.jdbc.dao.JdbcLinkDao;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @TestPropertySource(properties = {"app.database-access-type=jdbc"})
-public class JdbcLinkTest extends IntegrationTest {
+public class JdbcLinkDaoTest extends IntegrationTest {
     @Autowired
     private JdbcLinkDao linkDao;
 

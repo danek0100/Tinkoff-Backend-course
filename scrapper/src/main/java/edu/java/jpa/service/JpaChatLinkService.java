@@ -1,8 +1,10 @@
-package edu.java.jpa;
+package edu.java.jpa.service;
 
 import edu.java.domain.ChatLink;
 import edu.java.dto.ChatLinkDTO;
 import edu.java.exception.ChatNotFoundException;
+import edu.java.jpa.repository.ChatLinkRepository;
+import edu.java.jpa.repository.ChatRepository;
 import edu.java.service.ChatLinkService;
 import java.time.LocalDateTime;
 import java.util.Collection;

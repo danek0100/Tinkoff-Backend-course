@@ -1,4 +1,4 @@
-package edu.java.jdbc;
+package edu.java.jdbc.service;
 
 import edu.java.dao.ChatDao;
 import edu.java.dao.ChatLinkDao;
@@ -7,6 +7,7 @@ import edu.java.dto.ChatDTO;
 import edu.java.dto.ChatLinkDTO;
 import edu.java.dto.LinkDTO;
 import edu.java.exception.ChatNotFoundException;
+import edu.java.jdbc.service.JdbcChatLinkService;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

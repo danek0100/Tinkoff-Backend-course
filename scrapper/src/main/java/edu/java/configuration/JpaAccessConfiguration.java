@@ -1,11 +1,11 @@
 package edu.java.configuration;
 
-import edu.java.jpa.ChatLinkRepository;
-import edu.java.jpa.ChatRepository;
-import edu.java.jpa.JpaChatLinkService;
-import edu.java.jpa.JpaChatService;
-import edu.java.jpa.JpaLinkService;
-import edu.java.jpa.LinkRepository;
+import edu.java.jpa.repository.ChatLinkRepository;
+import edu.java.jpa.repository.ChatRepository;
+import edu.java.jpa.repository.LinkRepository;
+import edu.java.jpa.service.JpaChatLinkService;
+import edu.java.jpa.service.JpaChatService;
+import edu.java.jpa.service.JpaLinkService;
 import edu.java.service.ChatLinkService;
 import edu.java.service.ChatService;
 import edu.java.service.LinkService;

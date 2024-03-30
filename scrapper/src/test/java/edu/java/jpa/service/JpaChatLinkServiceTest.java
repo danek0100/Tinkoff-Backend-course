@@ -1,17 +1,12 @@
-package edu.java.jpa;
+package edu.java.jpa.service;
 
-import edu.java.dao.ChatDao;
-import edu.java.dao.ChatLinkDao;
-import edu.java.dao.LinkDao;
 import edu.java.domain.Chat;
-import edu.java.domain.ChatLink;
 import edu.java.domain.Link;
-import edu.java.dto.ChatDTO;
 import edu.java.dto.ChatLinkDTO;
-import edu.java.dto.LinkDTO;
-import edu.java.dto.LinkResponse;
 import edu.java.exception.ChatNotFoundException;
-import edu.java.jdbc.JdbcChatLinkService;
+import edu.java.jpa.repository.ChatRepository;
+import edu.java.jpa.repository.LinkRepository;
+import edu.java.jpa.service.JpaChatLinkService;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
