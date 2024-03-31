@@ -11,4 +11,5 @@ import lombok.Setter;
 @Setter
 public class AddLinkRequest {
     private String link;
+    private String description;
 }

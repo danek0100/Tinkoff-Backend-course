@@ -3,6 +3,7 @@ app:
     enable: true
     interval: PT10S
     force-check-delay: PT10S
+  database-access-type: jdbc
 
 bot:
   api:
@@ -20,6 +21,9 @@ spring:
     exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   liquibase:
     enabled: false
+  jpa:
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8080
@@ -38,4 +42,3 @@ stackoverflow:
 springdoc:
   swagger-ui:
     path: /swagger-ui
-
