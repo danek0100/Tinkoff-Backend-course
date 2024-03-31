@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 
 class ScrapperApiClientTest {
 
@@ -66,17 +67,31 @@ class ScrapperApiClientTest {
     void testRetryOnFailure() throws Exception {
         Long tgChatId = 1L;
         when(mockHttpResponse.statusCode()).thenReturn(500, 200);
+        String jsonResponse = """
+        {
+            "links": [
+                {
+                    "id": 1,
+                    "url": "http://example.com",
+                    "description": "Пример описания"
+                }
+            ],
+            "size": 1
+        }
+        """;
+        when(mockHttpResponse.body()).thenReturn(jsonResponse);
 
-        String result = scrapperApiClient.getAllLinks(tgChatId);
+        ListLinksResponse result = scrapperApiClient.getAllLinks(tgChatId);
 
-        assertEquals("Expected response", result);
+        assertEquals(1, result.getSize());
         verify(mockHttpClient, times(2)).send(any(HttpRequest.class), any());
     }
+
 
     @Test
     void testRegisterChat() throws Exception {
         Long chatId = 1L;
-        when(mockHttpResponse.statusCode()).thenReturn(204);
+        when(mockHttpResponse.statusCode()).thenReturn(HttpStatus.NO_CONTENT.value());
 
         scrapperApiClient.registerChat(chatId);
 

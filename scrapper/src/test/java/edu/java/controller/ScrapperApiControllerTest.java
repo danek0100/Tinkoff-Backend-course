@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -94,7 +95,7 @@ public class ScrapperApiControllerTest extends IntegrationTest {
 
     @Test
     public void getAllLinks_ShouldReturnListLinksResponse() throws Exception {
-        when(chatLinkService.findAllLinksForChat(anyLong())).thenReturn(Arrays.asList(new ChatLinkDTO(testChatId, testLinkId, LocalDateTime.now())));
+        when(chatLinkService.findAllLinksForChat(anyLong())).thenReturn(List.of(new ChatLinkDTO(testChatId, testLinkId, LocalDateTime.now())));
         when(linkService.findById(anyLong())).thenReturn(testLink);
 
         mockMvc.perform(get("/links")

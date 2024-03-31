@@ -47,7 +47,7 @@ public class ScrapperApiClient {
         this.backOffProperties = backOffProperties;
     }
 
-    private String sendRequest(HttpRequest request) throws Exception {
+    private HttpResponse<String> sendRequest(HttpRequest request) throws Exception {
         backOffStrategy.reset();
         int attempt = 0;
         HttpResponse<String> response;
@@ -67,8 +67,9 @@ public class ScrapperApiClient {
             attempt++;
         } while (true);
 
-        if (response.statusCode() == HttpStatus.OK.value()) {
-            return response.body();
+        if (response.statusCode() >= HttpStatus.OK.value()
+            && response.statusCode() < HttpStatus.MULTIPLE_CHOICES.value()) {
+            return response;
         } else {
             throw new RuntimeException("Failed to send request after " + attempt
                 + " attempts, status code: " + response.statusCode());
@@ -86,7 +87,7 @@ public class ScrapperApiClient {
             .POST(HttpRequest.BodyPublishers.noBody())
             .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = sendRequest(request);
         if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
             ApiErrorResponse errorResponse = objectMapper.readValue(response.body(), ApiErrorResponse.class);
             if (ChatAlreadyRegisteredException.getExceptionName().equals(errorResponse.getExceptionName())) {
@@ -103,7 +104,7 @@ public class ScrapperApiClient {
                 .DELETE()
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = sendRequest(request);
         if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
             ApiErrorResponse errorResponse = objectMapper.readValue(response.body(), ApiErrorResponse.class);
             if (ChatNotFoundException.getExceptionName().equals(errorResponse.getExceptionName())) {
@@ -121,7 +122,7 @@ public class ScrapperApiClient {
             .GET()
             .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = sendRequest(request);
         if (response.statusCode() == HttpStatus.OK.value()) {
             return objectMapper.readValue(response.body(), ListLinksResponse.class);
         } else {
@@ -136,7 +137,7 @@ public class ScrapperApiClient {
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = sendRequest(request);
 
         if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
             ApiErrorResponse errorResponse = objectMapper.readValue(response.body(), ApiErrorResponse.class);
@@ -158,7 +159,7 @@ public class ScrapperApiClient {
             .method("DELETE", HttpRequest.BodyPublishers.ofString(requestBody))
             .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = sendRequest(request);
         if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
             ApiErrorResponse errorResponse = objectMapper.readValue(response.body(), ApiErrorResponse.class);
             if (LinkNotFoundException.getExceptionName().equals(errorResponse.getExceptionName())) {
