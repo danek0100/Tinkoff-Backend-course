@@ -46,11 +46,14 @@
         <checkstyle.version>10.12.7</checkstyle.version>
 
         <bucket4j-core.version>7.6.0</bucket4j-core.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
     <modules>
         <module>bot</module>
         <module>scrapper</module>
+        <module>scrapper-jooq</module>
     </modules>
 
     <dependencyManagement>
@@ -120,6 +123,20 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-codegen</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta-extensions-liquibase</artifactId>
+            <version>3.18.13</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
