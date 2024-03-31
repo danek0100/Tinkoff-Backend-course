@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(properties = {"app.database-access-type=jooq"})
 public class JooqChatLinkServiceTest implements IntegrationTest {
-    /*
     @Autowired
     private JooqChatLinkService chatLinkService;
 
@@ -32,33 +31,37 @@ public class JooqChatLinkServiceTest implements IntegrationTest {
     private DSLContext dslContext;
 
     private long testChatId = 10L;
-    private long testLinkId;
 
-    @BeforeEach
-    void setup() {
-        dslContext.deleteFrom(LINK).execute();
-        dslContext.deleteFrom(CHAT).execute();
-        dslContext.deleteFrom(CHAT_LINK).execute();
-
+    private long prepareTestData() {
         OffsetDateTime nowUTC = LocalDateTime.now().atOffset(ZoneOffset.UTC);
 
-        dslContext.insertInto(CHAT)
-                .columns(CHAT.CHAT_ID, CHAT.CREATED_AT)
-                .values(testChatId, nowUTC)
-                .returning(CHAT.CHAT_ID)
-                .fetchOne()
-                .getChatId();
+        long chatId = dslContext.insertInto(CHAT)
+            .columns(CHAT.CHAT_ID, CHAT.CREATED_AT)
+            .values(testChatId, nowUTC)
+            .returning(CHAT.CHAT_ID)
+            .fetchOne()
+            .getChatId();
 
-        testLinkId = dslContext.insertInto(LINK)
-                .columns(LINK.URL, LINK.DESCRIPTION, LINK.CREATED_AT)
-                .values("http://example.com", "Example Description", nowUTC)
-                .returning(LINK.LINK_ID)
-                .fetchOne()
-                .getLinkId();
+        long linkId = dslContext.insertInto(LINK, LINK.URL, LINK.DESCRIPTION, LINK.CREATED_AT)
+            .values("http://example.com", "Example Description", OffsetDateTime.now(ZoneOffset.UTC))
+            .returning(LINK.LINK_ID)
+            .fetchOne()
+            .getLinkId();
+
+        return linkId;
+    }
+
+    @AfterEach
+    void cleanup() {
+        dslContext.deleteFrom(CHAT_LINK).execute();
+        dslContext.deleteFrom(LINK).execute();
+        dslContext.deleteFrom(CHAT).execute();
     }
 
     @Test
     void addLinkToChat_AddsLink_IfChatExists() {
+        long testLinkId = prepareTestData();
+
         chatLinkService.addLinkToChat(testChatId, testLinkId);
 
         boolean exists = dslContext.fetchExists(
@@ -72,6 +75,8 @@ public class JooqChatLinkServiceTest implements IntegrationTest {
 
     @Test
     void removeLinkFromChat_RemovesLink_IfLinkExists() {
+        long testLinkId = prepareTestData();
+
         chatLinkService.addLinkToChat(testChatId, testLinkId);
         chatLinkService.removeLinkFromChat(testChatId, testLinkId);
 
@@ -86,6 +91,8 @@ public class JooqChatLinkServiceTest implements IntegrationTest {
 
     @Test
     void findAllLinksForChat_ReturnsCorrectLinks() {
+        long testLinkId = prepareTestData();
+
         chatLinkService.addLinkToChat(testChatId, testLinkId);
         Collection<ChatLinkDTO> links = chatLinkService.findAllLinksForChat(testChatId);
 
@@ -96,6 +103,8 @@ public class JooqChatLinkServiceTest implements IntegrationTest {
 
     @Test
     void findAllChatsForLink_ReturnsCorrectChats() {
+        long testLinkId = prepareTestData();
+
         chatLinkService.addLinkToChat(testChatId, testLinkId);
         Collection<ChatLinkDTO> chats = chatLinkService.findAllChatsForLink(testLinkId);
 
@@ -106,6 +115,8 @@ public class JooqChatLinkServiceTest implements IntegrationTest {
 
     @Test
     void existsChatsForLink_ReturnsTrue_WhenChatsExist() {
+        long testLinkId = prepareTestData();
+
         chatLinkService.addLinkToChat(testChatId, testLinkId);
         boolean exists = chatLinkService.existsChatsForLink(testLinkId);
 
@@ -114,9 +125,11 @@ public class JooqChatLinkServiceTest implements IntegrationTest {
 
     @Test
     void existsChatsForLink_ReturnsFalse_WhenNoChatsExist() {
+        long testLinkId = prepareTestData();
+
         boolean exists = chatLinkService.existsChatsForLink(testLinkId);
 
         assertFalse(exists, "Should return false when no chats exist for the link");
     }
-     */
+
 }
