@@ -34,8 +34,6 @@ public class ScrapperApiClient {
     private final BackOffProperties backOffProperties;
     private final static String API_ERROR = "API error: ";
     private static final Logger LOGGER = LoggerFactory.getLogger(ScrapperApiClient.class);
-    private final BackOffStrategy backOffStrategy;
-    private final BackOffProperties backOffProperties;
 
     public ScrapperApiClient(@Value("${scrapper.api.baseurl}") String baseUrl,
         HttpClient httpClient, ObjectMapper objectMapper, BackOffStrategy backOffStrategy,
