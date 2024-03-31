@@ -22,7 +22,6 @@ import static edu.java.jooq.generated.tables.Link.LINK;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Transactional
 @TestPropertySource(properties = {"app.database-access-type=jooq"})
 public class JooqChatLinkServiceTest implements IntegrationTest {
 
@@ -57,7 +56,7 @@ public class JooqChatLinkServiceTest implements IntegrationTest {
                 .fetchOne()
                 .getLinkId();
     }
-    
+
     @Test
     void addLinkToChat_AddsLink_IfChatExists() {
         chatLinkService.addLinkToChat(testChatId, testLinkId);

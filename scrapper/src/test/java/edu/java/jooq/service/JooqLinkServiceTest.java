@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -16,8 +17,7 @@ import static edu.java.jooq.generated.Tables.LINK;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Transactional
-@Rollback
+@TestPropertySource(properties = {"app.database-access-type=jooq"})
 public class JooqLinkServiceTest extends IntegrationTest {
 
     @Autowired
