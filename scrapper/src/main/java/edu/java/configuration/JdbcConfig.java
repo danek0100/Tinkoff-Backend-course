@@ -1,6 +1,8 @@
 package edu.java.configuration;
 
 import javax.sql.DataSource;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DefaultConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,5 +38,13 @@ public class JdbcConfig {
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    public org.jooq.Configuration jooqConfiguration(DataSource dataSource) {
+        DefaultConfiguration jooqConfig = new DefaultConfiguration();
+        jooqConfig.setDataSource(dataSource);
+        jooqConfig.setSQLDialect(SQLDialect.POSTGRES);
+        return jooqConfig;
     }
 }

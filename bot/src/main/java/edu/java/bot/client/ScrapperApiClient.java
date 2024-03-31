@@ -73,7 +73,7 @@ public class ScrapperApiClient {
                 + " attempts, status code: " + response.statusCode());
         }
     }
-  
+
     private HttpRequest.Builder requestBuilder(String path) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + path))
@@ -101,7 +101,7 @@ public class ScrapperApiClient {
         HttpRequest request = requestBuilder(TG_CHAT_URI + id)
                 .DELETE()
                 .build();
-      
+
         HttpResponse<String> response = sendRequest(request);
         if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
             ApiErrorResponse errorResponse = objectMapper.readValue(response.body(), ApiErrorResponse.class);

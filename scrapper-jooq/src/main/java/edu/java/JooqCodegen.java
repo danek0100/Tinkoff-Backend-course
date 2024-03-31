@@ -6,7 +6,6 @@ import org.jooq.meta.jaxb.Database;
 import org.jooq.meta.jaxb.Generate;
 import org.jooq.meta.jaxb.Generator;
 import org.jooq.meta.jaxb.Property;
-import org.jooq.meta.jaxb.Strategy;
 import org.jooq.meta.jaxb.Target;
 
 
@@ -39,13 +38,9 @@ public class JooqCodegen {
             .withDaos(false)
             .withPojos(true);
 
-
         Target target = new Target()
             .withPackageName("edu.java.jooq.generated")
             .withDirectory("scrapper/src/main/java/");
-
-        Strategy strategy = new Strategy()
-            .withName("edu.java.CustomNamingStrategy");
 
         Configuration configuration = new Configuration()
             .withGenerator(
@@ -53,7 +48,6 @@ public class JooqCodegen {
                     .withDatabase(database)
                     .withGenerate(options)
                     .withTarget(target)
-                    .withStrategy(strategy)
             );
 
         GenerationTool.generate(configuration);
