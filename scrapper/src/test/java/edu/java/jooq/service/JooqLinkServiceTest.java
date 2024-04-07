@@ -27,7 +27,7 @@ public class JooqLinkServiceTest extends IntegrationTest {
     private final String testDescription = "Test Description";
 
     @AfterEach
-    void setup() {
+    void clear() {
         dslContext.deleteFrom(LINK).execute();
     }
 
