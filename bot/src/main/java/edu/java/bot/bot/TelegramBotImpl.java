@@ -76,6 +76,7 @@ public class TelegramBotImpl implements Bot {
         bot.execute(request);
     }
 
+    @Override
     public void sendChatMessage(Long chatId, String message) {
         SendMessage request = new SendMessage(chatId.toString(), message);
         this.execute(request);
