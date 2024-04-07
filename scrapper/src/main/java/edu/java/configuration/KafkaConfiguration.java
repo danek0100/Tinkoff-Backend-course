@@ -17,9 +17,14 @@ public class KafkaConfiguration {
     @Bean
     public NewTopic topic() {
         return TopicBuilder.name(updateTopic)
-                .partitions(1)
-                .replicas(1)
-                .build();
+            .partitions(1)
+            .replicas(1)
+            .build();
+    }
+
+    @Bean
+    public String updateTopicName() {
+        return updateTopic;
     }
 
     @Bean
