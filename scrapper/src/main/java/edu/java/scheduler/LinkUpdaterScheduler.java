@@ -1,6 +1,5 @@
 package edu.java.scheduler;
 
-import edu.java.client.BotApiClient;
 import edu.java.configuration.ApplicationConfig;
 import edu.java.dto.ChatLinkDTO;
 import edu.java.dto.Comment;
@@ -10,6 +9,7 @@ import edu.java.dto.QuestionResponse;
 import edu.java.service.ChatLinkService;
 import edu.java.service.GitHubService;
 import edu.java.service.LinkService;
+import edu.java.service.NotificationSender;
 import edu.java.service.StackOverflowService;
 import edu.java.utils.GitHubLinkExtractor;
 import edu.java.utils.StackOverflowLinkExtractor;
@@ -41,18 +41,21 @@ public class LinkUpdaterScheduler {
     private final ChatLinkService chatLinkService;
     private final GitHubService gitHubService;
     private final StackOverflowService stackOverflowService;
-    private final BotApiClient botApiClient;
+    private final NotificationSender notificationSender;
 
     @Autowired
-    public LinkUpdaterScheduler(ApplicationConfig applicationConfig, LinkService linkService,
-            ChatLinkService chatLinkService, GitHubService gitHubService, StackOverflowService stackOverflowService,
-            BotApiClient botApiClient) {
+    public LinkUpdaterScheduler(ApplicationConfig applicationConfig,
+            LinkService linkService,
+            ChatLinkService chatLinkService,
+            GitHubService gitHubService,
+            StackOverflowService stackOverflowService,
+            NotificationSender notificationSender) {
         this.schedulerConfig = applicationConfig.scheduler();
         this.linkService = linkService;
         this.chatLinkService = chatLinkService;
         this.gitHubService = gitHubService;
         this.stackOverflowService = stackOverflowService;
-        this.botApiClient = botApiClient;
+        this.notificationSender = notificationSender;
     }
 
     @Scheduled(fixedDelayString = "#{@scheduler.interval}")
@@ -108,7 +111,7 @@ public class LinkUpdaterScheduler {
                                 .map(ChatLinkDTO::getChatId)
                                 .collect(Collectors.toList())
                         );
-                        botApiClient.postUpdate(updateRequest).subscribe();
+                        notificationSender.sendNotification(updateRequest);
                     }
                     return Mono.just(updateLinkWithNewTimes(link, LocalDateTime.now(),
                         OffsetDateTime.now().toLocalDateTime()));
@@ -163,7 +166,7 @@ public class LinkUpdaterScheduler {
                                     .map(ChatLinkDTO::getChatId)
                                     .collect(Collectors.toList())
                             );
-                            botApiClient.postUpdate(updateRequest).subscribe();
+                            notificationSender.sendNotification(updateRequest);
                         }
                         return Mono.just(updateLinkWithNewTimes(link, LocalDateTime.now(),
                             latestUpdate.toLocalDateTime()));

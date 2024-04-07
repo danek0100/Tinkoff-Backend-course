@@ -4,6 +4,7 @@ app:
     interval: PT10S
     force-check-delay: PT10S
   database-access-type: jooq
+  useQueue: true
 
 bot:
   api:
