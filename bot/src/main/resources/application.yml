@@ -10,6 +10,15 @@ spring:
     name: bot
   jackson:
     time-zone: UTC
+  spring:
+    kafka:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+      consumer:
+        group-id: ${SCRAPPER_GROUP_ID:update-group}
+        auto-offset-reset: earliest
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
 
 server:
   port: 8090
@@ -33,3 +42,6 @@ backoff:
   increment: 1000
   maxAttempts: 1000
   retryable-status-codes: [500, 502, 503, 504]
+
+kafka:
+  topic: ${SCRAPPER_UPDATE_TOPIC:update-topic}
