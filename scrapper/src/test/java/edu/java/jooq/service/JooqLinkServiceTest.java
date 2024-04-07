@@ -1,18 +1,17 @@
 package edu.java.jooq.service;
 
 import edu.java.dto.LinkDTO;
-import edu.java.exception.LinkNotFoundException;
 import edu.java.scrapper.IntegrationTest;
 import org.jooq.DSLContext;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import static edu.java.jooq.generated.Tables.CHAT;
+import static edu.java.jooq.generated.Tables.CHAT_LINK;
 import static edu.java.jooq.generated.Tables.LINK;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,11 +28,11 @@ public class JooqLinkServiceTest extends IntegrationTest {
     private final String testUrl = "http://example.com/test";
     private final String testDescription = "Test Description";
 
-    @BeforeEach
-    void setup() {
-        dslContext.deleteFrom(LINK)
-                  .where(LINK.URL.eq(testUrl))
-                  .execute();
+    @AfterEach
+    void clear() {
+        dslContext.deleteFrom(LINK).execute();
+        dslContext.deleteFrom(CHAT).execute();
+        dslContext.deleteFrom(CHAT_LINK).execute();
     }
 
     @Test

@@ -4,14 +4,14 @@ import edu.java.exception.ChatAlreadyRegisteredException;
 import edu.java.exception.ChatNotFoundException;
 import edu.java.scrapper.IntegrationTest;
 import org.jooq.DSLContext;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 import static edu.java.jooq.generated.Tables.CHAT;
+import static edu.java.jooq.generated.Tables.CHAT_LINK;
+import static edu.java.jooq.generated.Tables.LINK;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -26,11 +26,11 @@ public class JooqChatServiceTest extends IntegrationTest {
 
     private final long testChatId = 1L;
 
-    @BeforeEach
-    void setup() {
-        dslContext.deleteFrom(CHAT)
-                  .where(CHAT.CHAT_ID.eq(testChatId))
-                  .execute();
+    @AfterEach
+    void clear() {
+        dslContext.deleteFrom(LINK).execute();
+        dslContext.deleteFrom(CHAT).execute();
+        dslContext.deleteFrom(CHAT_LINK).execute();
     }
 
     @Test
