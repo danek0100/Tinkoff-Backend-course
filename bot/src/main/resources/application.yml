@@ -12,6 +12,7 @@ spring:
     time-zone: UTC
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    dlqTopic: ${SCRAPPER_DLQ_TOPIC:topic_dlq}
     consumer:
       topic: ${SCRAPPER_UPDATE_TOPIC:update-topic}
       group-id: ${SCRAPPER_GROUP_ID:update-group}
