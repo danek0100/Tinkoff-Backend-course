@@ -25,7 +25,7 @@ public class JooqChatServiceTest extends IntegrationTest {
     private final long testChatId = 1L;
 
     @AfterEach
-    void setup() {
+    void clear() {
         dslContext.deleteFrom(CHAT).execute();
     }
 
