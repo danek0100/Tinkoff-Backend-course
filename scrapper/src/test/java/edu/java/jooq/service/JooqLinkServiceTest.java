@@ -31,6 +31,7 @@ public class JooqLinkServiceTest extends IntegrationTest {
         dslContext.deleteFrom(LINK).execute();
     }
 
+
     @Test
     void add_CreatesNewLink_WhenLinkDoesNotExist() {
         LinkDTO addedLink = linkService.add(testUrl, testDescription);
