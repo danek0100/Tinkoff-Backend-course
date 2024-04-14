@@ -3,6 +3,7 @@ package edu.java.configuration;
 import java.time.Duration;
 import java.util.function.Predicate;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -16,10 +17,20 @@ public class RetryConfig {
     private final RetryProperties retryProperties;
 
     @Bean
-    public Retry retrySpec() {
+    @ConditionalOnProperty(name = "retry.strategy", havingValue = "exponential")
+    public Retry exponentialRetrySpec() {
         return Retry.backoff(retryProperties.getMaxAttempts(),
                 Duration.ofSeconds(retryProperties.getFirstBackoffSeconds()))
             .maxBackoff(Duration.ofSeconds(retryProperties.getMaxBackoffSeconds()))
+            .jitter(retryProperties.getJitterFactor())
+            .filter(retryFilter());
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "retry.strategy", havingValue = "constant")
+    public Retry constantRetrySpec() {
+        return Retry.fixedDelay(retryProperties.getMaxAttempts(),
+                Duration.ofSeconds(retryProperties.getFirstBackoffSeconds()))
             .filter(retryFilter());
     }
 

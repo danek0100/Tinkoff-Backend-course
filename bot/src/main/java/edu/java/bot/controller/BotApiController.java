@@ -21,17 +21,16 @@ public class BotApiController {
     private final TelegramBotImpl telegramBot;
     private static final Logger LOGGER = LoggerFactory.getLogger(BotApiController.class);
     private final BucketManager bucketManager;
-    private final HttpServletRequest request;
 
-    private boolean isLimitExceeded() {
+    private boolean isLimitExceeded(HttpServletRequest request) {
         String ip = request.getRemoteAddr();
         Bucket bucket = bucketManager.resolveBucket(ip);
         return !bucket.tryConsumeAndReturnRemaining(1).isConsumed();
     }
 
     @PostMapping("/updates")
-    public ResponseEntity<?> postUpdate(@RequestBody LinkUpdateRequest linkUpdate) {
-        if (isLimitExceeded()) {
+    public ResponseEntity<?> postUpdate(@RequestBody LinkUpdateRequest linkUpdate, HttpServletRequest request) {
+        if (isLimitExceeded(request)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Rate limit exceeded");
         }
 
