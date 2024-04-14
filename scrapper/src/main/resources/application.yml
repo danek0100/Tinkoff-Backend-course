@@ -3,7 +3,7 @@ app:
     enable: true
     interval: PT10S
     force-check-delay: PT10S
-  database-access-type: jooq
+  database-access-type: jpa
   useQueue: true
 
 bot:
@@ -33,6 +33,35 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+management:
+  server:
+    port: 8083
+  endpoints:
+    web:
+      path-mapping:
+        prometheus: /metrics
+      base-path: /
+      exposure:
+        include: info, health, prometheus
+  endpoint:
+    health:
+      enabled: true
+    info:
+      enabled: true
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        step: 1m
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
 
 server:
   port: 8080

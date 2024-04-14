@@ -11,6 +11,8 @@ import com.pengrad.telegrambot.response.BaseResponse;
 import edu.java.bot.command.Command;
 import edu.java.bot.configuration.ApplicationConfig;
 import edu.java.bot.service.UserMessageProcessor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import org.slf4j.Logger;
@@ -23,6 +25,8 @@ public class TelegramBotImpl implements Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(TelegramBotImpl.class);
     private final TelegramBot bot;
     private final UserMessageProcessor messageProcessor;
+    private final Counter updatesProcessed = Metrics.counter("updates.processed");
+
 
     public TelegramBotImpl(ApplicationConfig config, UserMessageProcessor messageProcessor) {
         this.bot = new TelegramBot(config.telegramToken());
@@ -59,6 +63,7 @@ public class TelegramBotImpl implements Bot {
                     LOGGER.debug("Sent response to chat ID {}", response.getParameters().get("chat_id"));
                 }
             }
+            updatesProcessed.increment();
         }
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
