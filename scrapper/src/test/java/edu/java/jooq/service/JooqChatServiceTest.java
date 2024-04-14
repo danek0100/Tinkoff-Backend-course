@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import static edu.java.jooq.generated.Tables.CHAT;
-import static edu.java.jooq.generated.Tables.CHAT_LINK;
-import static edu.java.jooq.generated.Tables.LINK;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -27,10 +25,8 @@ public class JooqChatServiceTest extends IntegrationTest {
     private final long testChatId = 1L;
 
     @AfterEach
-    void clear() {
-        dslContext.deleteFrom(LINK).execute();
+    void setup() {
         dslContext.deleteFrom(CHAT).execute();
-        dslContext.deleteFrom(CHAT_LINK).execute();
     }
 
     @Test

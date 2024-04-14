@@ -10,8 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import static edu.java.jooq.generated.Tables.CHAT;
-import static edu.java.jooq.generated.Tables.CHAT_LINK;
 import static edu.java.jooq.generated.Tables.LINK;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,10 +27,8 @@ public class JooqLinkServiceTest extends IntegrationTest {
     private final String testDescription = "Test Description";
 
     @AfterEach
-    void clear() {
+    void setup() {
         dslContext.deleteFrom(LINK).execute();
-        dslContext.deleteFrom(CHAT).execute();
-        dslContext.deleteFrom(CHAT_LINK).execute();
     }
 
     @Test
