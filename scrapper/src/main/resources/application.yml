@@ -58,9 +58,11 @@ rate-limiting:
   refill-duration: 60
 
 retry:
+  strategy: exponential # "constant" или "exponential"
   max-attempts: 3
   first-backoff-seconds: 1
   max-backoff-seconds: 5
+  jitter-factor: 0.5
   retryable-status-codes: [500, 502, 503, 504]
 
 kafka:

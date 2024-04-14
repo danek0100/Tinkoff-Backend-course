@@ -12,8 +12,10 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 public class RetryProperties {
 
+    private String strategy;
     private long maxAttempts;
     private long firstBackoffSeconds;
     private long maxBackoffSeconds;
+    private double jitterFactor;
     private List<Integer> retryableStatusCodes;
 }
