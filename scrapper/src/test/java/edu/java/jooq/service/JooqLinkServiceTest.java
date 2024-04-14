@@ -4,6 +4,8 @@ import edu.java.dto.LinkDTO;
 import edu.java.exception.LinkNotFoundException;
 import edu.java.scrapper.IntegrationTest;
 import org.jooq.DSLContext;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +29,11 @@ public class JooqLinkServiceTest extends IntegrationTest {
     private final String testUrl = "http://example.com/test";
     private final String testDescription = "Test Description";
 
-    @BeforeEach
+    @AfterEach
     void setup() {
-        dslContext.deleteFrom(LINK)
-                  .where(LINK.URL.eq(testUrl))
-                  .execute();
+        dslContext.deleteFrom(LINK).execute();
     }
+
 
     @Test
     void add_CreatesNewLink_WhenLinkDoesNotExist() {

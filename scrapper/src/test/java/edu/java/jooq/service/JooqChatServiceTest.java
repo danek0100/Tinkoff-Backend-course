@@ -4,6 +4,7 @@ import edu.java.exception.ChatAlreadyRegisteredException;
 import edu.java.exception.ChatNotFoundException;
 import edu.java.scrapper.IntegrationTest;
 import org.jooq.DSLContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,9 @@ public class JooqChatServiceTest extends IntegrationTest {
 
     private final long testChatId = 1L;
 
-    @BeforeEach
+    @AfterEach
     void setup() {
-        dslContext.deleteFrom(CHAT)
-                  .where(CHAT.CHAT_ID.eq(testChatId))
-                  .execute();
+        dslContext.deleteFrom(CHAT).execute();
     }
 
     @Test
