@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
 import reactor.util.retry.Retry;
 
 
@@ -32,6 +33,25 @@ public class RetryConfig {
         return Retry.fixedDelay(retryProperties.getMaxAttempts(),
                 Duration.ofSeconds(retryProperties.getFirstBackoffSeconds()))
             .filter(retryFilter());
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "retry.strategy", havingValue = "linear")
+    public Retry linearRetrySpec() {
+        return Retry.from(retrySignals -> retrySignals
+            .filter(retrySignal -> retrySignal.failure() instanceof WebClientResponseException
+                && retryProperties.getRetryableStatusCodes().contains(
+                    ((WebClientResponseException) retrySignal.failure()).getStatusCode().value()))
+            .flatMap(retrySignal ->
+                Flux.just(retrySignal.totalRetriesInARow())
+                    .delayElements(calculateLinearBackoff(retrySignal.totalRetriesInARow()))
+            )
+        );
+    }
+
+    private Duration calculateLinearBackoff(long retryCount) {
+        long backoff = retryProperties.getFirstBackoffSeconds() + retryProperties.getIncrementSeconds() * retryCount;
+        return Duration.ofSeconds(Math.min(backoff, retryProperties.getMaxBackoffSeconds()));
     }
 
     @Bean

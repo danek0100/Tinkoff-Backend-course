@@ -16,6 +16,7 @@ public class RetryProperties {
     private long maxAttempts;
     private long firstBackoffSeconds;
     private long maxBackoffSeconds;
+    private long incrementSeconds;
     private double jitterFactor;
     private List<Integer> retryableStatusCodes;
 }
