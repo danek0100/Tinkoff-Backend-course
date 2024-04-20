@@ -1,6 +1,7 @@
 package edu.java.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.java.bucket.BucketManager;
 import edu.java.dto.AddLinkRequest;
 import edu.java.dto.ChatLinkDTO;
 import edu.java.dto.LinkDTO;
@@ -9,8 +10,14 @@ import edu.java.scrapper.IntegrationTest;
 import edu.java.service.ChatLinkService;
 import edu.java.service.ChatService;
 import edu.java.service.LinkService;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.ConsumptionProbe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -45,6 +53,12 @@ public class ScrapperApiControllerTest extends IntegrationTest {
     @MockBean
     private ChatLinkService chatLinkService;
 
+    @MockBean
+    private BucketManager bucketManager;
+
+    @Mock
+    private Bucket mockBucket;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -56,7 +70,15 @@ public class ScrapperApiControllerTest extends IntegrationTest {
 
     @BeforeEach
     public void setup() {
+        MockitoAnnotations.openMocks(this);
+
         testLink = new LinkDTO(testLinkId, testUrl, testDescription, LocalDateTime.now(), null, null);
+
+        ConsumptionProbe probe = Mockito.mock(ConsumptionProbe.class);
+        when(probe.isConsumed()).thenReturn(true);
+        when(mockBucket.tryConsumeAndReturnRemaining(1)).thenReturn(probe);
+
+        when(bucketManager.resolveBucket(anyString())).thenReturn(mockBucket);
     }
 
     @Test
@@ -73,7 +95,7 @@ public class ScrapperApiControllerTest extends IntegrationTest {
 
     @Test
     public void getAllLinks_ShouldReturnListLinksResponse() throws Exception {
-        when(chatLinkService.findAllLinksForChat(anyLong())).thenReturn(Arrays.asList(new ChatLinkDTO(testChatId, testLinkId, LocalDateTime.now())));
+        when(chatLinkService.findAllLinksForChat(anyLong())).thenReturn(List.of(new ChatLinkDTO(testChatId, testLinkId, LocalDateTime.now())));
         when(linkService.findById(anyLong())).thenReturn(testLink);
 
         mockMvc.perform(get("/links")

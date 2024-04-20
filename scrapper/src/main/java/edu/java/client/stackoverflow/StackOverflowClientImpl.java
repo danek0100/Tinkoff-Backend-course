@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Service
 public class StackOverflowClientImpl implements StackOverflowClient {
@@ -18,9 +19,11 @@ public class StackOverflowClientImpl implements StackOverflowClient {
     private static final String API_ERROR = "API Error";
 
     private final WebClient webClient;
+    private final Retry retrySpec;
 
-    public StackOverflowClientImpl(@Qualifier("stackOverflowWebClient") WebClient webClient) {
+    public StackOverflowClientImpl(@Qualifier("stackOverflowWebClient") WebClient webClient, Retry retrySpec) {
         this.webClient = webClient;
+        this.retrySpec = retrySpec;
     }
 
     @Override
@@ -36,7 +39,8 @@ public class StackOverflowClientImpl implements StackOverflowClient {
             .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
                 response -> Mono.error(new RuntimeException(API_ERROR)))
             .bodyToMono(QuestionsApiResponse.class)
-            .map(QuestionsApiResponse::getItems);
+            .map(QuestionsApiResponse::getItems)
+            .retryWhen(retrySpec);
     }
 
 
@@ -54,6 +58,7 @@ public class StackOverflowClientImpl implements StackOverflowClient {
             .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
                 response -> Mono.error(new RuntimeException(API_ERROR)))
             .bodyToMono(AnswersApiResponse.class)
-            .map(AnswersApiResponse::getItems);
+            .map(AnswersApiResponse::getItems)
+            .retryWhen(retrySpec);
     }
 }

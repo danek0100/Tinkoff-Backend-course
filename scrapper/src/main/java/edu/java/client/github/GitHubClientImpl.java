@@ -3,19 +3,25 @@ package edu.java.client.github;
 import edu.java.dto.IssuesCommentsResponse;
 import edu.java.dto.PullCommentsResponse;
 import edu.java.dto.PullRequestResponse;
+import java.util.function.Predicate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+
 
 @Service
 public class GitHubClientImpl implements GitHubClient {
 
     private final WebClient webClient;
+    private final Retry retrySpec;
 
-    public GitHubClientImpl(@Qualifier("gitHubWebClient") WebClient webClient) {
+    public GitHubClientImpl(@Qualifier("gitHubWebClient") WebClient webClient, Retry retrySpec,
+        Predicate<Throwable> retryFilter) {
         this.webClient = webClient;
+        this.retrySpec = retrySpec;
     }
 
     @Override
@@ -25,7 +31,8 @@ public class GitHubClientImpl implements GitHubClient {
             .retrieve()
             .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
                 response -> Mono.error(new RuntimeException("API Error")))
-            .bodyToMono(PullRequestResponse.class);
+            .bodyToMono(PullRequestResponse.class)
+            .retryWhen(retrySpec);
     }
 
     @Override
@@ -33,7 +40,8 @@ public class GitHubClientImpl implements GitHubClient {
         return webClient.get()
             .uri("/repos/{owner}/{repo}/issues/{issueNumber}/comments", owner, repo, issueNumber)
             .retrieve()
-            .bodyToFlux(IssuesCommentsResponse.class);
+            .bodyToFlux(IssuesCommentsResponse.class)
+            .retryWhen(retrySpec);
     }
 
     @Override
@@ -41,6 +49,7 @@ public class GitHubClientImpl implements GitHubClient {
         return webClient.get()
             .uri("/repos/{owner}/{repo}/pulls/{issueNumber}/comments", owner, repo, pullNumber)
             .retrieve()
-            .bodyToFlux(PullCommentsResponse.class);
+            .bodyToFlux(PullCommentsResponse.class)
+            .retryWhen(retrySpec);
     }
 }
