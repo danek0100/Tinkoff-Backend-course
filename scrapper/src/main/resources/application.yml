@@ -4,6 +4,7 @@ app:
     interval: PT10S
     force-check-delay: PT10S
   database-access-type: jooq
+  useQueue: true
 
 bot:
   api:
@@ -24,6 +25,14 @@ spring:
   jpa:
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    consumer:
+      group-id: ${SCRAPPER_GROUP_ID:update-group}
+      auto-offset-reset: earliest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 server:
   port: 8080
@@ -55,3 +64,6 @@ retry:
   max-backoff-seconds: 5
   jitter-factor: 0.5
   retryable-status-codes: [500, 502, 503, 504]
+
+kafka:
+  topic: ${SCRAPPER_UPDATE_TOPIC:update-topic}

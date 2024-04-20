@@ -1,18 +1,15 @@
 package edu.java.scheduler;
 
-import edu.java.client.BotApiClient;
 import edu.java.configuration.ApplicationConfig;
 import edu.java.dto.CombinedPullRequestInfo;
 import edu.java.dto.LinkDTO;
-import edu.java.dto.LinkUpdateRequest;
-import edu.java.scheduler.LinkUpdaterScheduler;
 import edu.java.service.ChatLinkService;
 import edu.java.service.GitHubService;
 import edu.java.service.LinkService;
+import edu.java.service.NotificationSender;
 import edu.java.service.StackOverflowService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Mono;
@@ -34,7 +31,7 @@ public class LinkUpdaterSchedulerTest {
     @Mock
     private StackOverflowService stackOverflowService;
     @Mock
-    private BotApiClient botApiClient;
+    private NotificationSender notificationSender;
     @Mock
     private ApplicationConfig applicationConfig;
     @Mock
@@ -49,7 +46,8 @@ public class LinkUpdaterSchedulerTest {
         when(schedulerConfig.enable()).thenReturn(true);
         when(schedulerConfig.interval()).thenReturn(Duration.ofDays(1L));
 
-        scheduler = new LinkUpdaterScheduler(applicationConfig, linkService, chatLinkService, gitHubService, stackOverflowService, botApiClient);
+        scheduler = new LinkUpdaterScheduler(applicationConfig, linkService, chatLinkService, gitHubService,
+            stackOverflowService, notificationSender);
     }
 
     @Test
@@ -60,8 +58,6 @@ public class LinkUpdaterSchedulerTest {
                 .thenReturn(Collections.singletonList(mockLink));
         when(gitHubService.getPullRequestInfo(anyString(), anyString(), anyInt()))
                 .thenReturn(Mono.just(new CombinedPullRequestInfo("Title", new ArrayList<>(), new ArrayList<>())));
-        when(botApiClient.postUpdate(any(LinkUpdateRequest.class)))
-                .thenReturn(Mono.just("Success"));
 
         scheduler.update();
 

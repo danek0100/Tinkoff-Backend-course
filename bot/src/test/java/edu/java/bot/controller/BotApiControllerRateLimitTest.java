@@ -4,10 +4,12 @@ import edu.java.bot.dto.LinkUpdateRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,9 @@ public class BotApiControllerRateLimitTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @MockBean
+    private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
 
     @Test
     public void rateLimitTest_underConcurrentLoad() throws InterruptedException {

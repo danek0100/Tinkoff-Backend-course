@@ -1,8 +1,8 @@
 package edu.java.bot.controller;
 
-import edu.java.bot.bot.TelegramBotImpl;
 import edu.java.bot.bucket.BucketManager;
 import edu.java.bot.dto.LinkUpdateRequest;
+import edu.java.bot.service.NotificationService;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class BotApiController {
 
-    private final TelegramBotImpl telegramBot;
+    private final NotificationService notificationService;
     private static final Logger LOGGER = LoggerFactory.getLogger(BotApiController.class);
     private final BucketManager bucketManager;
 
@@ -38,12 +38,7 @@ public class BotApiController {
             throw new IllegalArgumentException("URL cannot be empty");
         }
 
-        String messageText = String.format("%s\n\n%s", linkUpdate.getUrl(), linkUpdate.getDescription());
-
-        linkUpdate.getTgChatIds().forEach(chatId -> {
-            LOGGER.info("Sending update to chat ID {}: {}", chatId, messageText);
-            telegramBot.sendChatMessage(chatId, messageText);
-        });
+        notificationService.processUpdate(linkUpdate);
 
         return ResponseEntity.noContent().build();
     }

@@ -8,7 +8,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 public class PostgreSQLContainerTest {
-    /*
+    /* TODO find issues (drop all test with db after it)
     @Container
     private static final PostgreSQLContainer<?> postgresContainer = IntegrationTest.POSTGRES;
 

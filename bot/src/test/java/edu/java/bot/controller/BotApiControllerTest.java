@@ -1,13 +1,12 @@
 package edu.java.bot.controller;
 
-import edu.java.bot.bot.TelegramBotImpl;
 import edu.java.bot.bucket.BucketManager;
 import edu.java.bot.dto.LinkUpdateRequest;
+import edu.java.bot.service.NotificationService;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -15,11 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
@@ -37,7 +38,10 @@ public class BotApiControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private TelegramBotImpl telegramBot;
+    private NotificationService notificationService;
+
+    @MockBean
+    private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
 
     @MockBean
     private BucketManager bucketManager;
@@ -69,8 +73,6 @@ public class BotApiControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isNoContent());
 
-        String expectedMessage = "http://example.com\n\nПример описания";
-        verify(telegramBot, times(1)).sendChatMessage(123L, expectedMessage);
-        verify(telegramBot, times(1)).sendChatMessage(456L, expectedMessage);
+        verify(notificationService, times(1)).processUpdate(any(LinkUpdateRequest.class));
     }
 }
