@@ -25,7 +25,7 @@ public class TelegramBotImpl implements Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(TelegramBotImpl.class);
     private final TelegramBot bot;
     private final UserMessageProcessor messageProcessor;
-    private final Counter updatesProcessed = Metrics.counter("updates.processed");
+    private final Counter messagesProcessed = Metrics.counter("messages.processed");
 
 
     public TelegramBotImpl(ApplicationConfig config, UserMessageProcessor messageProcessor) {
@@ -63,7 +63,7 @@ public class TelegramBotImpl implements Bot {
                     LOGGER.debug("Sent response to chat ID {}", response.getParameters().get("chat_id"));
                 }
             }
-            updatesProcessed.increment();
+            messagesProcessed.increment();
         }
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
