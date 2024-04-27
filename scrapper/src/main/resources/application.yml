@@ -14,7 +14,7 @@ spring:
   application:
     name: scrapper
   datasource:
-    url: jdbc:postgresql://localhost:5432/scrapper
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/scrapper}
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
